@@ -5,6 +5,8 @@
  */
 package com.moosedrive.boots.items.armor;
 
+import com.moosedrive.boots.items.IItem;
+
 /**
  *
  * @author cedarrapidsboy
@@ -24,6 +26,16 @@ public abstract class ArmorItem implements IArmor, IItem {
         this.encumbrance = encumbrance;
         this.condition = condition;
         this.durability = durability;
+    }
+
+    /**
+     * Returns a percent representing this item's damage/condition related to
+     * its max durability
+     * @return
+     */
+    @Override
+    public double getConditionPercent() {
+        return this.condition / this.durability;
     }
 
     /**

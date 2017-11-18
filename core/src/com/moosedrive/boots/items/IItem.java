@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.moosedrive.boots.items.armor;
+package com.moosedrive.boots.items;
 
 /**
  *
@@ -16,7 +16,8 @@ public interface IItem {
      * @return Current condition 0.0-1.0
      */
     int getCondition();
-
+    
+    double getConditionPercent();
     /**
      * A value representing the weight of this item
      * @return float weight of this item
