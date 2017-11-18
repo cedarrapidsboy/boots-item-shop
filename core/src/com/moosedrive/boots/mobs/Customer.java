@@ -58,19 +58,39 @@ public class Customer {
 
     /**
      * Return a list of Boots from the equipped armor
+     *
      * @return
      */
     public List<Boot> getEquippedBoots() {
-        return equippedArmor.stream().filter(armor -> armor instanceof Boot).map(armor -> (Boot) armor).collect(Collectors.toList());
+        return equippedArmor.stream()
+                .filter(armor -> armor instanceof Boot)
+                .map(armor -> (Boot) armor)
+                .collect(Collectors.toList());
     }
 
-    public void adjustNumberOfHeads(int num){
+    public void adjustNumberOfHeads(int num) {
         //TODO drop most broken helmet into inventory
         this.numHeads += num;
     }
-    
-        public void adjustNumberOfLegs(int num){
-        //TODO drop most broken boot into inventory
+
+    /**
+     *
+     * @param num
+     */
+    public void adjustNumberOfLegs(int num) {
         this.numLegs += num;
+        List<Boot> boots = equippedArmor.stream()
+                .filter(armor -> armor instanceof Boot)
+                .map(boot -> (Boot) boot)
+                .sorted((Boot boot1, Boot boot2)
+                        -> Double.compare(boot1.getCondition() / boot1.getDurability(),
+                        boot2.getCondition() / boot2.getDurability()))
+                .collect(Collectors.toList());
+        int bootsToRemove = boots.size() - this.numLegs;
+        //TODO need to track max legs vs. numlegs
+        //Place boots in the inventory if there are more boots than legs
+        for (int i = 0; i < bootsToRemove; i++) {
+            inventory.add(boots.remove(0));
+        }
     }
 }
