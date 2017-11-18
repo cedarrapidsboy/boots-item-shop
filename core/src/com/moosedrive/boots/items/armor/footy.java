@@ -6,12 +6,12 @@
 package com.moosedrive.boots.items.armor;
 
 /**
- * A single boot. Mobs may have less than (or more than) two legs.
+ * A single footy. Mobs may have less than (or more than) two legs.
  * @author cedarrapidsboy
  */
-public class boot {
+public class footy {
 
-    public boot(int armorValue, double encumbrance, double condition, int durability) {
+    public footy(int armorValue, double encumbrance, double condition, int durability) {
         this.armorValue = armorValue;
         this.encumbrance = encumbrance;
         this.condition = condition;
