@@ -39,6 +39,14 @@ public class Populace {
         return pop;
     }
 
+    /**
+     *
+     * @return Number of entities in the populace
+     */
+    public int count() {
+        return customers.size();
+    }
+    
     private class UpdateTask extends TimerTask {
 
         public UpdateTask(boolean active) {

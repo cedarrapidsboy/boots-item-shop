@@ -44,6 +44,14 @@ public class BootShop {
         return boot;
     }
 
+    /**
+     *
+     * @return Number of items in stock
+     */
+    public int count() {
+        return stock.size();
+    }
+    
     private class UpdateTask extends TimerTask {
 
         public UpdateTask(boolean active) {
