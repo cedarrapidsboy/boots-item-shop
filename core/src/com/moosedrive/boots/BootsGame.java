@@ -2,13 +2,17 @@ package com.moosedrive.boots;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.shops.BootShop;
@@ -23,11 +27,10 @@ public class BootsGame extends ApplicationAdapter {
     private Stage stage;
     private Table table;
 
-    private Label customersLabel;
-    private Label customersCountLabel;
+    private ScrollPane worldTextScroller;
+    private Label worldText;
+    private Label shopText;
 
-    private Label bootLabel;
-    private Label bootCountLabel;
     Texture img;
     BootShop bootShop;
     Populace populace;
@@ -44,11 +47,13 @@ public class BootsGame extends ApplicationAdapter {
             stage = new Stage();
             Gdx.input.setInputProcessor(stage);
 
-            customersLabel = new Label("Customers:", skin);
-            customersCountLabel = new Label("0", skin);
-
-            bootLabel = new Label("Boots:", skin);
-            bootCountLabel = new Label("0", skin);
+            worldText = new Label("world-info", skin, "status");
+            worldText.setWrap(true);
+            worldTextScroller = new ScrollPane(worldText, skin);
+            worldTextScroller.setFadeScrollBars(false);
+            shopText = new Label("shop-info", skin, "status");
+            worldText.setAlignment(Align.topLeft);
+            shopText.setAlignment(Align.topLeft);
 
             table = new Table();
             table.setFillParent(true);
@@ -57,11 +62,11 @@ public class BootsGame extends ApplicationAdapter {
             //TODO remove debugging line
             table.setDebug(true);
 
-            table.add(customersLabel);
-            table.add(customersCountLabel).width(100);
+            table.add(worldTextScroller).expand().fill();
+            table.add();
             table.row();
-            table.add(bootLabel);
-            table.add(bootCountLabel).width(100);
+            table.add();
+            table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
 
         } catch (IOException ex) {
             Logger.getLogger(BootsGame.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,17 +79,50 @@ public class BootsGame extends ApplicationAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        bootCountLabel.setText(String.valueOf(bootShop.count()));
-        customersCountLabel.setText(String.valueOf(populace.count()));
+        
+
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
         //batch.begin();
         //batch.draw(img, 0, 0);
         //batch.end();
+        tickWorld();
+        processKeyPresses();
+        updateText();
+
+    }
+
+    private void updateText() {
+        worldText.setText(populace.worldStatusText());
+        shopText.setText(bootShop.stockText());
+    }
+
+    private boolean prevKeyDownC = false;
+    private boolean prevKeyDownB = false;
+    private void processKeyPresses() {
+        boolean keyDownC = Gdx.input.isKeyPressed(Input.Keys.C);
+        boolean keyDownB = Gdx.input.isKeyPressed(Input.Keys.B);
+        if (keyDownC && !prevKeyDownC){
+            populace.addCustomerToWorld();
+            prevKeyDownC = true;
+        } else if (!keyDownC){
+            prevKeyDownC = false;
+        }
+        if (keyDownB && !prevKeyDownB){
+            bootShop.addBoot();
+            prevKeyDownB = true;
+        } else if (!keyDownB){
+            prevKeyDownB = false;
+        }
+    }
+
+    private void tickWorld() {
+        long currentTimeMilli = TimeUtils.millis();
     }
 
     @Override
     public void resize(int width, int height) {
+        //super.resize(width, height);
         stage.getViewport().update(width, height, true);
     }
 

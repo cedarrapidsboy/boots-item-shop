@@ -22,12 +22,9 @@ public class BootShop {
 
     private static BootShop thisShop;
     private Set<Boot> stock;
-    private final Timer stockUpdater;
 
     private BootShop() {
         stock = Collections.synchronizedSet(new HashSet());
-        stockUpdater = new Timer();
-        stockUpdater.schedule(new UpdateTask(true), 1000, 1000);
     }
 
     public boolean addBoot(Boot boot) {
@@ -51,30 +48,10 @@ public class BootShop {
     public int count() {
         return stock.size();
     }
-    
-    private class UpdateTask extends TimerTask {
 
-        public UpdateTask(boolean active) {
-            this.active = active;
-        }
-
-        boolean active;
-
-        @Override
-        public void run() {
-            if (this.active) {
-                stock.add(ArmorFactory.getRandomBoot());
-            }
-            System.out.println("Boot stock: " + stock.size());
-        }
-
-        public void pause() {
-            this.active = false;
-        }
-
-        public void start() {
-            this.active = true;
-        }
+    public void addBoot() {
+        stock.add(ArmorFactory.getRandomBoot());
+        System.out.println("Boot stock: " + stock.size());
 
     }
 
@@ -83,5 +60,12 @@ public class BootShop {
             thisShop = new BootShop();
         }
         return thisShop;
+    }
+    
+    public String stockText(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Boots: ");
+        sb.append(String.valueOf(count()));
+        return sb.toString();
     }
 }
