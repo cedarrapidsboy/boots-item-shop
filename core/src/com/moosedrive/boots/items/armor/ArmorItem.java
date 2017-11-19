@@ -12,16 +12,24 @@ import com.moosedrive.boots.items.IItem;
  * @author cedarrapidsboy
  */
 public abstract class ArmorItem implements IArmor, IItem {
-    
+
     final int armorValue; // The amount of armorValue added to the mob
     final double encumbrance; // The amount of encumbrance (wieght) added to the mob
     protected int condition; // The current durability of the item
     final int durability; // The maximum durability or the item
 
     ArmorItem(int armorValue, double encumbrance, int condition, int durability) {
-        if (durability < 1) { durability = 1; }
-        if (condition < 1) { condition = 1; } else if (condition > durability) { condition = durability; }
-        if (armorValue < 1) { armorValue = 1; }
+        if (durability < 1) {
+            durability = 1;
+        }
+        if (condition < 1) {
+            condition = 1;
+        } else if (condition > durability) {
+            condition = durability;
+        }
+        if (armorValue < 1) {
+            armorValue = 1;
+        }
         this.armorValue = armorValue;
         this.encumbrance = encumbrance;
         this.condition = condition;
@@ -31,6 +39,7 @@ public abstract class ArmorItem implements IArmor, IItem {
     /**
      * Returns a percent representing this item's damage/condition related to
      * its max durability
+     *
      * @return
      */
     @Override
@@ -40,6 +49,7 @@ public abstract class ArmorItem implements IArmor, IItem {
 
     /**
      * Returns the item's condition as a percentage of durability (0.0 to 1.0)
+     *
      * @return Current condition 0.0-1.0
      */
     @Override
@@ -49,6 +59,7 @@ public abstract class ArmorItem implements IArmor, IItem {
 
     /**
      * Set the current item condition as a fraction of the durability
+     *
      * @param condition A double value 0 to 1.0
      */
     @Override
@@ -64,6 +75,7 @@ public abstract class ArmorItem implements IArmor, IItem {
 
     /**
      * A value representing the protection this armorValue provides a mob
+     *
      * @return value of current armorValue
      */
     @Override
@@ -73,6 +85,7 @@ public abstract class ArmorItem implements IArmor, IItem {
 
     /**
      * A value representing the weight of this item
+     *
      * @return float weight of this item
      */
     @Override
@@ -82,6 +95,7 @@ public abstract class ArmorItem implements IArmor, IItem {
 
     /**
      * A value representing the maximum durability of this item.
+     *
      * @return int maximum durability
      */
     @Override
@@ -94,6 +108,4 @@ public abstract class ArmorItem implements IArmor, IItem {
         return (condition <= 0);
     }
 
-
-    
 }

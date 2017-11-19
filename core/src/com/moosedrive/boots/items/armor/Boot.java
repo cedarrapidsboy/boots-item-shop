@@ -7,6 +7,7 @@ package com.moosedrive.boots.items.armor;
 
 /**
  * A single Boot. Mobs may have less than (or more than) two legs.
+ *
  * @author cedarrapidsboy
  */
 public class Boot extends ArmorItem {

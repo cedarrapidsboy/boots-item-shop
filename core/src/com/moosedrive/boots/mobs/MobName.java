@@ -10,6 +10,7 @@ package com.moosedrive.boots.mobs;
  * @author Chad
  */
 public class MobName {
+
     private String title;
     private String surname;
     private String name;
@@ -31,29 +32,35 @@ public class MobName {
         this.additionalName = additionalName;
         this.mobType = mobType;
     }
-    
+
     /**
      *
      * @return the mob type (see MobConstants.MOB_TYPE_XXX)
      */
-    public int type(){
+    public int type() {
         return this.mobType;
     }
+
     /**
      *
      * @return a constructed display name for the mob
      */
-    public String getName(){
+    public String getName() {
+        String tmpname;
         switch (this.mobType) {
             case (MobConstants.MOB_TYPE_HUMAN):
-                return (title + " " + name + " " + surname + " " + additionalName).trim();
+                tmpname = (title + " " + this.name + " " + surname + " " + additionalName);
+                break;
             case (MobConstants.MOB_TYPE_ELF):
-                return (title + " " + surname + " " + name + " " + additionalName).trim();
+                tmpname = (title + " " + surname + " " + this.name + " " + additionalName);
+                break;
             case (MobConstants.MOB_TYPE_OGRE):
-                return (title + " " + name + " " + additionalName).trim();
+                tmpname = (title + " " + this.name + " " + additionalName);
+                break;
+            default:
+                tmpname = (title + " " + this.name + " " + surname + " " + additionalName);
         }
-        //other
-        return (title + " " + name + " " + surname + " " + additionalName).trim(); 
+        return tmpname.replaceAll("\\s+", " ").trim();
     }
-    
+
 }

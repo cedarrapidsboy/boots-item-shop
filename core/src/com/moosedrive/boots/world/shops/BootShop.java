@@ -19,30 +19,31 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author cedarrapidsboy
  */
 public class BootShop {
+
     private static BootShop thisShop;
     private Set<Boot> stock;
     private final Timer stockUpdater;
-    
-    private BootShop(){
+
+    private BootShop() {
         stock = Collections.synchronizedSet(new HashSet());
         stockUpdater = new Timer();
         stockUpdater.schedule(new UpdateTask(true), 1000, 1000);
     }
-    
-    public boolean addBoot(Boot boot){
+
+    public boolean addBoot(Boot boot) {
         return this.stock.add(boot);
     }
-    
+
     public synchronized Boot takeBoot() {
         Boot boot;
-        if (stock.size() > 0){
+        if (stock.size() > 0) {
             boot = (Boot) stock.toArray()[0];
         } else {
             boot = ArmorFactory.getRandomBoot();
         }
         return boot;
     }
-    
+
     private class UpdateTask extends TimerTask {
 
         public UpdateTask(boolean active) {
@@ -50,6 +51,7 @@ public class BootShop {
         }
 
         boolean active;
+
         @Override
         public void run() {
             if (this.active) {
@@ -57,17 +59,19 @@ public class BootShop {
             }
             System.out.println("Boot stock: " + stock.size());
         }
-        public void pause(){
+
+        public void pause() {
             this.active = false;
         }
-        public void start(){
+
+        public void start() {
             this.active = true;
         }
-        
+
     }
-    
-    public static BootShop getInstance(){
-        if (thisShop == null){
+
+    public static BootShop getInstance() {
+        if (thisShop == null) {
             thisShop = new BootShop();
         }
         return thisShop;

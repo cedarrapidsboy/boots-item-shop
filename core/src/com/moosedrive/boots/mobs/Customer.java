@@ -17,52 +17,37 @@ import java.util.stream.Collectors;
  *
  * @author cedarrapidsboy
  */
-public class Customer {
+public class Customer extends Creature {
 
-    private MobName name;
-    private final int mobType;
-    private int numLegs;
-    private final int maxLegs;
-    private int numArms;
-    private final int maxArms;
-    private int numHeads;
-    private final int maxHeads;
-    private int curHealth;
-    private final int maxHealth;
     private List<IArmor> equippedArmor;
     private List<IItem> inventory;
 
     public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
-        this.maxLegs = numLegs;
-        this.numLegs = this.maxLegs;
-        this.maxArms = numArms;
-        this.numArms = this.maxArms;
-        this.maxHeads = numHeads;
-        this.numHeads = this.maxHeads;
-        this.maxHealth = maxHealth;
-        this.curHealth = this.maxHealth;
-        this.name = name;
-        this.mobType = name.type();
-    }
-    
-    public MobName name() {
-        return this.name;
+        super(name, numLegs, numArms, numHeads, maxHealth);
     }
 
-    public int getNumLegs() {
-        return numLegs;
-    }
-
-    public int getNumArms() {
-        return numArms;
-    }
-
-    public int getNumHeads() {
-        return numHeads;
-    }
-
-    public int getCurHealth() {
-        return curHealth;
+    @Override
+    protected void adjustNumberOfLegs(int num) {
+        super.adjustNumberOfLegs(num);
+        if (num < 0) {
+            List<Boot> boots = getEquippedBoots().stream().sorted((Boot boot1, Boot boot2) -> Double.compare(boot1.getCondition() / boot1.getDurability(), boot2.getCondition() / boot2.getDurability())).collect(Collectors.toList());
+            int bootsToRemove = boots.size() - this.numLegs;
+            //Place boots in the inventory if there are more boots than legs
+            for (int i = 0; i < bootsToRemove; i++) {
+                Boot bootToStore = boots.remove(0);
+                this.inventory.add(bootToStore);
+                this.equippedArmor.remove(bootToStore);
+            }
+        } else if (num > 0) {
+            List<Boot> boots = getInventoryBoots().stream().sorted((Boot boot1, Boot boot2) -> Double.compare(boot1.getConditionPercent(), boot2.getConditionPercent())).collect(Collectors.toList());
+            int bootsToPutOn = boots.size() - num + 1;
+            //Put on boot from inventory with highest durability
+            for (int i = 0; i < bootsToPutOn; i++) {
+                Boot bootToAdd = boots.remove(boots.size() - 1);
+                this.equippedArmor.add(bootToAdd);
+                this.inventory.remove(bootToAdd);
+            }
+        }
     }
 
     /**
@@ -76,7 +61,8 @@ public class Customer {
                 .map(armor -> (Boot) armor)
                 .collect(Collectors.toList());
     }
-     /**
+
+    /**
      * Return a list of Boots from the equipped armor
      *
      * @return
@@ -88,67 +74,4 @@ public class Customer {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Adds a leg to the mob. Cannot add more than maxLegs
-     *
-     * @return True if a leg could be added
-     */
-    public boolean addLeg() {
-        if (this.numLegs < this.maxLegs) {
-            adjustNumberOfLegs(1);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Removes a leg from the mob. Cannot have negative count of legs
-     *
-     * @return True if a leg could be removed
-     */
-    public boolean removeLeg() {
-        if (this.numLegs > 0) {
-            adjustNumberOfLegs(-1);
-            return true;
-        }
-        return false;
-    }
-    
-
-    /**
-     *
-     * @param num
-     */
-    private void adjustNumberOfLegs(int num) {
-        this.numLegs += num;
-        if (num < 0) {
-            List<Boot> boots = getEquippedBoots()
-                    .stream()
-                    .sorted((Boot boot1, Boot boot2)
-                            -> Double.compare(boot1.getCondition() / boot1.getDurability(),
-                            boot2.getCondition() / boot2.getDurability()))
-                    .collect(Collectors.toList());
-            int bootsToRemove = boots.size() - this.numLegs;
-            //Place boots in the inventory if there are more boots than legs
-            for (int i = 0; i < bootsToRemove; i++) {
-                Boot bootToStore = boots.remove(0);
-                this.inventory.add(bootToStore);
-                this.equippedArmor.remove(bootToStore);
-            }
-        } else if (num > 0) {
-             List<Boot> boots = getInventoryBoots()
-                    .stream()
-                    .sorted((Boot boot1, Boot boot2)
-                            -> Double.compare(boot1.getConditionPercent(),
-                            boot2.getConditionPercent()))
-                    .collect(Collectors.toList());
-            int bootsToPutOn = boots.size() - num + 1;
-            //Put on boot from inventory with highest durability
-            for (int i = 0; i < bootsToPutOn; i++) {
-                Boot bootToAdd = boots.remove(boots.size() - 1);
-                this.equippedArmor.add(bootToAdd);
-                this.inventory.remove(bootToAdd);
-            }
-        }
-    }
 }
