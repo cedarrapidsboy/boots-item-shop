@@ -5,25 +5,19 @@
  */
 package com.moosedrive.boots.utils;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.MathUtils;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.MathUtils;
 
 /**
  *
@@ -31,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class NameUtils {
 
-    private static Map<Integer, List<String>> firstNameMap = new HashMap();
+    private static Map<Integer, List<String>> firstNameMap = new HashMap<Integer, List<String>>();
 
     private NameUtils() {
     }
@@ -49,7 +43,7 @@ public class NameUtils {
             System.out.println("...reading file " + file.name());
             Integer index = Integer.valueOf(file.name().split("_")[1]);
             reader = new BufferedReader(file.reader());
-            List names = reader.lines().collect(Collectors.toList());
+            List<String> names = reader.lines().collect(Collectors.toList());
             firstNameMap.put(index, names);
             nameCount += names.size();
         }

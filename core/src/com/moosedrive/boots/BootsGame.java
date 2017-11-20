@@ -1,10 +1,13 @@
 package com.moosedrive.boots;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -12,13 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.shops.BootShop;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BootsGame extends ApplicationAdapter {
 
@@ -31,7 +30,6 @@ public class BootsGame extends ApplicationAdapter {
     private Label worldText;
     private Label shopText;
 
-    Texture img;
     BootShop bootShop;
     Populace populace;
 
@@ -40,7 +38,6 @@ public class BootsGame extends ApplicationAdapter {
         try {
             NameUtils.initializeNames();
             batch = new SpriteBatch();
-            img = new Texture("badlogic.jpg");
             bootShop = BootShop.getInstance();
             populace = Populace.getInstance();
             skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -86,7 +83,6 @@ public class BootsGame extends ApplicationAdapter {
         //batch.begin();
         //batch.draw(img, 0, 0);
         //batch.end();
-        tickWorld();
         processKeyPresses();
         updateText();
 
@@ -116,9 +112,6 @@ public class BootsGame extends ApplicationAdapter {
         }
     }
 
-    private void tickWorld() {
-        long currentTimeMilli = TimeUtils.millis();
-    }
 
     @Override
     public void resize(int width, int height) {
@@ -129,7 +122,6 @@ public class BootsGame extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
         stage.dispose();
     }
 }

@@ -5,11 +5,12 @@
  */
 package com.moosedrive.boots.mobs;
 
-import com.moosedrive.boots.items.armor.Boot;
-import com.moosedrive.boots.items.armor.IArmor;
-import com.moosedrive.boots.items.IItem;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.moosedrive.boots.items.IItem;
+import com.moosedrive.boots.items.armor.Boot;
+import com.moosedrive.boots.items.armor.IArmor;
 
 /**
  * Represents a customer of the item shop. A customer will have funds, an

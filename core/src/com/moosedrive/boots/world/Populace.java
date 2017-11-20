@@ -5,18 +5,15 @@
  */
 package com.moosedrive.boots.world;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.mobs.Customer;
 import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
 import com.moosedrive.boots.utils.NameUtils;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -28,7 +25,7 @@ public class Populace {
     private final Set<Customer> customers;
 
     private Populace() {
-        customers = Collections.synchronizedSet(new HashSet());
+        customers = new HashSet<Customer>();
     }
 
     public static Populace getInstance() {
@@ -55,7 +52,7 @@ public class Populace {
 
     public String worldStatusText() {
         StringBuilder lines = new StringBuilder();
-        Iterator it = customers.iterator();
+        Iterator<Customer> it = customers.iterator();
         while (it.hasNext()) {
             lines.append(((Customer) it.next()).name().getName());
             lines.append(" is doing nothing.");

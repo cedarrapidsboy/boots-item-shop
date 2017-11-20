@@ -5,10 +5,6 @@
  */
 package com.moosedrive.boots.mobs;
 
-import com.moosedrive.boots.items.armor.Boot;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  *
  * @author cedarrapidsboy

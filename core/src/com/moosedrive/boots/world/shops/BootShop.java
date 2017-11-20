@@ -5,14 +5,11 @@
  */
 package com.moosedrive.boots.world.shops;
 
-import com.moosedrive.boots.items.armor.ArmorFactory;
-import com.moosedrive.boots.items.armor.Boot;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
+
+import com.moosedrive.boots.items.armor.ArmorFactory;
+import com.moosedrive.boots.items.armor.Boot;
 
 /**
  *
@@ -24,7 +21,7 @@ public class BootShop {
     private Set<Boot> stock;
 
     private BootShop() {
-        stock = Collections.synchronizedSet(new HashSet());
+        stock = new HashSet<Boot>();
     }
 
     public boolean addBoot(Boot boot) {
