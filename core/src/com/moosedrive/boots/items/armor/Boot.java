@@ -5,6 +5,8 @@
  */
 package com.moosedrive.boots.items.armor;
 
+import com.moosedrive.boots.items.ItemUtils;
+
 /**
  * A single Boot. Mobs may have less than (or more than) two legs.
  *
@@ -15,5 +17,10 @@ public class Boot extends ArmorItem {
     Boot(int armorValue, double encumbrance, int condition, int durability) {
         super(armorValue, encumbrance, condition, durability);
     }
+
+	@Override
+	public int getBasePrice() {
+		return ItemUtils.BOOTS_COST;
+	}
 
 }

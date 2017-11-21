@@ -12,6 +12,10 @@ package com.moosedrive.boots.items;
 public interface IItem {
 
     /**
+     * @return base item price
+     */
+    int getBasePrice();
+	/**
      * Returns the item's condition as a percentage of durability (0.0 to 1.0)
      *
      * @return Current condition 0.0-1.0
