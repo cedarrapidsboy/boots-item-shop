@@ -5,8 +5,6 @@
  */
 package com.moosedrive.boots.mobs;
 
-import com.badlogic.gdx.utils.Json;
-
 /**
  *
  * @author Chad
