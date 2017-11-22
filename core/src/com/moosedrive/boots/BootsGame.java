@@ -1,6 +1,7 @@
 package com.moosedrive.boots;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +28,7 @@ public class BootsGame extends ApplicationAdapter {
     private Table table;
 
     private ScrollPane worldTextScroller;
-    private Label worldText;
+    private Table worldText;
     private Label shopText;
 
     BootShop bootShop;
@@ -44,12 +45,10 @@ public class BootsGame extends ApplicationAdapter {
             stage = new Stage();
             Gdx.input.setInputProcessor(stage);
 
-            worldText = new Label("world-info", skin, "status");
-            worldText.setWrap(true);
+            worldText = new Table(skin);
             worldTextScroller = new ScrollPane(worldText, skin);
             worldTextScroller.setFadeScrollBars(false);
             shopText = new Label("shop-info", skin, "status");
-            worldText.setAlignment(Align.topLeft);
             shopText.setAlignment(Align.topLeft);
 
             table = new Table();
@@ -92,7 +91,32 @@ public class BootsGame extends ApplicationAdapter {
     }
 
     private void updateText() {
-        worldText.setText(populace.worldStatusText());
+    	
+    	worldText.clear();
+    	worldText.add(new Label("Name",skin));
+    	worldText.add(new Label("Health",skin)).padLeft(10.0F).padRight(10.0F);
+    	worldText.add(new Label("DMG",skin)).padLeft(10.0F).padRight(10.0F);
+    	worldText.add(new Label("AC",skin)).padLeft(10.0F).padRight(10.0F);
+    	worldText.add(new Label("Gold",skin)).padLeft(10.0F).padRight(10.0F);
+    	worldText.add(new Label("Inventory",skin)).padLeft(10.0F).padRight(10.0F);
+    	worldText.add(new Label("Action",skin)).left();
+    	worldText.row();
+    	List<String[]> worldRecords = populace.worldStatus();
+    	
+    	worldRecords.stream().forEach(s -> {
+    		
+    		for (int i = 0; i < s.length; i++) {
+    			if (i == s.length - 1) {
+    				worldText.add(new Label(s[i], skin)).expandX().left();
+    			} else if (i==0) {
+    				worldText.add(new Label(s[i], skin)).right();
+    			}else {
+    				worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F);
+    			}
+    				
+    		}
+    		worldText.row();
+    	});
         shopText.setText(bootShop.stockText());
     }
 
