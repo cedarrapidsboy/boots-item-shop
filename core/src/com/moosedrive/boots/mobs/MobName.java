@@ -7,7 +7,7 @@ package com.moosedrive.boots.mobs;
 
 /**
  *
- * @author Chad
+ * @author 
  */
 public class MobName {
 

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.moosedrive.boots.items.IItem;
 import com.moosedrive.boots.items.armor.Boot;
-import com.moosedrive.boots.items.armor.IArmor;
+import com.moosedrive.boots.items.armor.IArmorItem;
 
 /**
  * Represents a customer of the item shop. A customer will have funds, an
@@ -20,7 +20,7 @@ import com.moosedrive.boots.items.armor.IArmor;
  */
 public class Customer extends Creature {
 
-    private List<IArmor> equippedArmor;
+    private List<IArmorItem> equippedArmor;
     private List<IItem> inventory;
 
     public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {

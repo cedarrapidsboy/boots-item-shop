@@ -3,72 +3,48 @@
  */
 package com.moosedrive.boots.items.potions;
 
-import com.moosedrive.boots.items.IItem;
+import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.ItemUtils;
 
 /**
- * @author Chad
+ * @author cedarrapidsboy
  *
  */
-public class HealthPotion implements IItem {
+public class HealthPotion extends Potion {
 
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#getCondition()
-	 */
-	@Override
-	public int getCondition() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#getConditionPercent()
-	 */
-	@Override
-	public double getConditionPercent() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#getEncumbrance()
-	 */
-	@Override
-	public double getEncumbrance() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#getDurability()
-	 */
-	@Override
-	public int getDurability() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#setCondition(int)
-	 */
-	@Override
-	public void setCondition(int condition) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.items.IItem#isBroken()
-	 */
-	@Override
-	public boolean isBroken() {
-		// TODO Auto-generated method stub
-		return false;
+	private int size;
+	private boolean full;
+	private final double encumbrance_multiplier = 0.0;
+	private final double healing_multiplier = 100.0;
+	
+	public HealthPotion(int size) {
+		super();
+		this.full = true;
+		this.size = size;
 	}
 
 	@Override
 	public int getBasePrice() {
-		return ItemUtils.HEALTHPOTION_COST;
+		return Math.round(ItemUtils.HEALTHPOTION_COST * (size + 1));
+	}
+
+
+	@Override
+	public double getEncumbrance() {
+		// This likely returns zero
+		return (size + 1) * encumbrance_multiplier;
+	}
+	
+	/**
+	 * Empties the potion and returns a base healing.
+	 * @return amount of healing to apply
+	 */
+	public long drinkPotion() {
+		if (full) {
+			full = false;
+			return Math.round((size + 1) * healing_multiplier); 
+		}
+		return 0;
 	}
 
 }

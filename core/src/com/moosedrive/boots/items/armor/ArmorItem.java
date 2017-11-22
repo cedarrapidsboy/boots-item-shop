@@ -11,7 +11,7 @@ import com.moosedrive.boots.items.IItem;
  *
  * @author cedarrapidsboy
  */
-public abstract class ArmorItem implements IArmor, IItem {
+public abstract class ArmorItem implements IArmorItem{
 
     final int armorValue; // The amount of armorValue added to the mob
     final double encumbrance; // The amount of encumbrance (wieght) added to the mob
