@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
+import com.moosedrive.boots.mobs.MobName;
 
 /**
  *
@@ -72,6 +73,10 @@ public class NameUtils {
             name = names.get(MathUtils.random(names.size() - 1));
         }
         return name;
+    }
+    
+    public static MobName getSimpleName(String name, int mobType) {
+    	return new MobName("", "", name, "", mobType);
     }
 
 }

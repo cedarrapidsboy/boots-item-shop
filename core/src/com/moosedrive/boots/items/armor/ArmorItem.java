@@ -5,8 +5,6 @@
  */
 package com.moosedrive.boots.items.armor;
 
-import com.moosedrive.boots.items.IItem;
-
 /**
  *
  * @author cedarrapidsboy

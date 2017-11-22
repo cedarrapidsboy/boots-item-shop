@@ -21,4 +21,6 @@ public interface IItem {
      * @return float weight of this item
      */
     double getEncumbrance();
+    
+    String getName();
 }

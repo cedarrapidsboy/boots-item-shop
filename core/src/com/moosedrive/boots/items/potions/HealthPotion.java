@@ -3,7 +3,6 @@
  */
 package com.moosedrive.boots.items.potions;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.ItemUtils;
 
 /**
@@ -45,6 +44,12 @@ public class HealthPotion extends Potion {
 			return Math.round((size + 1) * healing_multiplier); 
 		}
 		return 0;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Health Potion";
 	}
 
 }

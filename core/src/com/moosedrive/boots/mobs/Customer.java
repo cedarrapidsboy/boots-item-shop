@@ -19,12 +19,14 @@ import com.moosedrive.boots.items.armor.IArmorItem;
  * @author cedarrapidsboy
  */
 public class Customer extends Creature {
+	
+	private final static int BASE_DMG = 10;
 
     private List<IArmorItem> equippedArmor;
     private List<IItem> inventory;
 
     public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
-        super(name, numLegs, numArms, numHeads, maxHealth);
+        super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG);
     }
 
     @Override

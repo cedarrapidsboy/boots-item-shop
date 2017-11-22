@@ -23,4 +23,10 @@ public class Boot extends ArmorItem {
 		return ItemUtils.BOOTS_COST;
 	}
 
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Boot";
+	}
+
 }

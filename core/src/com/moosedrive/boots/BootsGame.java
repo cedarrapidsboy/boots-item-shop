@@ -64,6 +64,9 @@ public class BootsGame extends ApplicationAdapter {
             table.row();
             table.add();
             table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
+            
+            //TESTING
+            populace.populateWorld();
 
         } catch (IOException ex) {
             Logger.getLogger(BootsGame.class.getName()).log(Level.SEVERE, null, ex);
