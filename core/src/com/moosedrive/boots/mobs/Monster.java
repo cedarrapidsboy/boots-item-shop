@@ -11,8 +11,9 @@ import com.moosedrive.boots.items.containers.IContainer;
  *
  * @author 
  */
-public class Monster extends Creature implements IContainer {
+public abstract class Monster extends Creature implements IContainer {
 	
+
 	private boolean isFriendly;
     
 	public Monster(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, boolean friendly, int baseDamage) {

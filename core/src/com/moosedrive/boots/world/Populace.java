@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
 import com.moosedrive.boots.items.potions.Potion;
@@ -56,6 +57,20 @@ public class Populace {
 				monsters.add(Spider.getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
 						MathUtils.random(10, 30)));
 			}
+			monsters.parallelStream().forEach(m -> {
+				if (MathUtils.random(1,50) == 1) {
+					//1:50 chance for a random boot
+					m.addItem(ArmorFactory.getRandomBoot());
+				}
+				if (MathUtils.random(1,20) == 1) {
+					//1:20 chance for a health potion
+					m.addItem(new HealthPotion(Potion.POTION_SMALL));
+				}
+				if (MathUtils.random(1,10) == 1) {
+					//1:10 chance for some gold
+					m.setMoney(MathUtils.random(5, 20));
+				}
+			});
 		}
 	}
 

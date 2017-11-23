@@ -8,7 +8,6 @@ package com.moosedrive.boots.mobs;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.moosedrive.boots.items.IItem;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.armor.IArmorItem;
 
@@ -19,62 +18,95 @@ import com.moosedrive.boots.items.armor.IArmorItem;
  * @author cedarrapidsboy
  */
 public class Customer extends Creature {
-	
+
 	private final static int BASE_DMG = 10;
 
-    private List<IArmorItem> equippedArmor;
-    private List<IItem> inventory;
+	private List<IArmorItem> equippedArmor;
 
-    public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
-        super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG);
-    }
+	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
+		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG);
+	}
 
-    @Override
-    protected void adjustNumberOfLegs(int num) {
-        super.adjustNumberOfLegs(num);
-        if (num < 0) {
-            List<Boot> boots = getEquippedBoots().stream().sorted((Boot boot1, Boot boot2) -> Double.compare(boot1.getCondition() / boot1.getDurability(), boot2.getCondition() / boot2.getDurability())).collect(Collectors.toList());
-            int bootsToRemove = boots.size() - this.numLegs;
-            //Place boots in the inventory if there are more boots than legs
-            for (int i = 0; i < bootsToRemove; i++) {
-                Boot bootToStore = boots.remove(0);
-                this.inventory.add(bootToStore);
-                this.equippedArmor.remove(bootToStore);
-            }
-        } else if (num > 0) {
-            List<Boot> boots = getInventoryBoots().stream().sorted((Boot boot1, Boot boot2) -> Double.compare(boot1.getConditionPercent(), boot2.getConditionPercent())).collect(Collectors.toList());
-            int bootsToPutOn = boots.size() - num + 1;
-            //Put on boot from inventory with highest durability
-            for (int i = 0; i < bootsToPutOn; i++) {
-                Boot bootToAdd = boots.remove(boots.size() - 1);
-                this.equippedArmor.add(bootToAdd);
-                this.inventory.remove(bootToAdd);
-            }
-        }
-    }
+	@Override
+	protected void adjustNumberOfLegs(int num) {
+		super.adjustNumberOfLegs(num);
+		equipBestBoots();
+	}
 
-    /**
-     * Return a list of Boots from the equipped armor
-     *
-     * @return
-     */
-    private List<Boot> getEquippedBoots() {
-        return equippedArmor.stream()
-                .filter(armor -> armor instanceof Boot)
-                .map(armor -> (Boot) armor)
-                .collect(Collectors.toList());
-    }
+	/**
+	 * @return Combined armor value of equipped armor
+	 */
+	public int getArmorValue() {
+		return equippedArmor.parallelStream().filter(armor -> armor instanceof IArmorItem)
+				.map(armor -> (IArmorItem) armor).mapToInt(armor -> armor.getArmorValue()).sum();
+	}
 
-    /**
-     * Return a list of Boots from the equipped armor
-     *
-     * @return
-     */
-    private List<Boot> getInventoryBoots() {
-        return inventory.stream()
-                .filter(armor -> armor instanceof Boot)
-                .map(armor -> (Boot) armor)
-                .collect(Collectors.toList());
-    }
+	/**
+	 * Equips the best boots from the inventory and equipped items
+	 * 
+	 * @return Boots that were equipped (may be empty)
+	 */
+	private List<Boot> equipBestBoots() {
+		takeOffBoots();
+		List<Boot> boots = getInventoryBoots().stream().sorted(
+				(Boot boot1, Boot boot2) -> Double.compare(boot1.getConditionPercent(), boot2.getConditionPercent()))
+				.collect(Collectors.toList());
+		int bootsToPutOn = (boots.size() > getNumLegs()) ? getNumLegs() : boots.size();
+		for (int i = 0; i < bootsToPutOn; i++) {
+			Boot boot = boots.get(i);
+			removeItem(boot);
+			this.equippedArmor.add(boot);
+		}
+		return getEquippedBoots();
+	}
+
+	private void takeOffBoots() {
+		List<Boot> equipped = getEquippedBoots();
+		// remove boots from equipped items
+		equippedArmor = equippedArmor.parallelStream().filter(armor -> !(armor instanceof Boot))
+				.map(armor -> (Boot) armor).collect(Collectors.toList());
+		// add boots to inventory
+		inventory.addAll(equipped);
+	}
+
+	/**
+	 * Return a list of Boots from the equipped armor
+	 *
+	 * @return
+	 */
+	private List<Boot> getEquippedBoots() {
+		return equippedArmor.stream().filter(armor -> armor instanceof Boot).map(armor -> (Boot) armor)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Return a list of Boots from the equipped armor
+	 *
+	 * @return
+	 */
+	private List<Boot> getInventoryBoots() {
+		return getContents().stream().filter(armor -> armor instanceof Boot).map(armor -> (Boot) armor)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public int getDamage() {
+		// TODO Auto-generated method stub
+		return getBaseDamage();
+	}
+
+	@Override
+	public int applyDamage(int damage) {
+		int newDamage = damage - getArmorValue();
+		if (newDamage < 0) {
+			newDamage = 0;
+		}
+		int newHealth = getCurHealth() - damage;
+		if (newHealth < 0) {
+			newHealth = 0;
+		}
+		setCurHealth(newHealth);
+		return damage;
+	}
 
 }

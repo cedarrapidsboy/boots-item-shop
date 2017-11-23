@@ -20,4 +20,19 @@ public class Spider extends Monster {
 		return new Spider(name, 8, 0, 1, maxHealth);
 	}
 
+	@Override
+	public int getDamage() {
+		return getBaseDamage();
+	}
+
+	@Override
+	public int applyDamage(int damage) {
+		int newHealth = getCurHealth() - damage;
+		if (newHealth < 0) {
+			newHealth = 0;
+		}
+		setCurHealth(newHealth);
+		return damage;
+	}
+
 }
