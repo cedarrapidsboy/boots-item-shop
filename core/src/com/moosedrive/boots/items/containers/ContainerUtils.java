@@ -11,18 +11,18 @@ public class ContainerUtils {
 	private ContainerUtils() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public static String inventorySummary(List<IItem> inventory) {
-		HashMap<String,Long> itemCounts = new HashMap<String,Long>();
-		for(IItem item : inventory) {
-		    Long i = itemCounts.get(item.getName());
-		    if(i == null) itemCounts.put(item.getName(), Long.valueOf(1));
-		    else itemCounts.put(item.getName(), i + 1);
+		HashMap<String, Long> itemCounts = new HashMap<String, Long>();
+		for (IItem item : inventory) {
+			Long i = itemCounts.get(item.getName());
+			if (i == null)
+				itemCounts.put(item.getName(), Long.valueOf(1));
+			else
+				itemCounts.put(item.getName(), i + 1);
 		}
-		return itemCounts
-				.entrySet()
-				.stream()
-				.map(e -> (String)String.join("", e.getKey(), " (" + e.getValue().toString() + ")"))
+		return itemCounts.entrySet().stream()
+				.map(e -> (String) String.join("", e.getKey(), " (" + e.getValue().toString() + ")"))
 				.collect(Collectors.joining(", "));
 	}
 

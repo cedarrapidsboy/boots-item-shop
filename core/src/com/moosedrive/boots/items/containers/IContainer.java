@@ -32,12 +32,14 @@ public interface IContainer {
 
 	/**
 	 * Empties the inventory. Returns a copy of the inventory.
+	 * 
 	 * @return A copy of the inventory list.
 	 */
 	List<IItem> clear();
 
 	/**
-	 * Take (steal) a random item from the inventory. 
+	 * Take (steal) a random item from the inventory.
+	 * 
 	 * @return A random item from the inventory or null if empty inventory
 	 */
 	IItem takeRandomItem();

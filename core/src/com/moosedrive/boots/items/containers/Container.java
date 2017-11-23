@@ -6,18 +6,20 @@ import java.util.List;
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.IItem;
 
-public class Container implements IContainer{
+public class Container implements IContainer {
 
 	private int maxItems;
 	protected List<IItem> contents;
 	private long money;
-	
+
 	public Container(int maxItems, long money) {
 		this.maxItems = maxItems;
 		this.setMoney(money);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.moosedrive.boots.mobs.IContainer#getInventoryItems()
 	 */
 	@Override
@@ -25,23 +27,33 @@ public class Container implements IContainer{
 		return new ArrayList<>(contents);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.mobs.IContainer#addItemToInventory(com.moosedrive.boots.items.IItem)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.moosedrive.boots.mobs.IContainer#addItemToInventory(com.moosedrive.boots.
+	 * items.IItem)
 	 */
 	@Override
 	public boolean addItem(IItem item) {
 		return ((contents.size() < maxItems) && !contents.contains(item) && contents.add(item));
 	}
 
-	/* (non-Javadoc)
-	 * @see com.moosedrive.boots.mobs.IContainer#removeItemFromInventory(com.moosedrive.boots.items.IItem)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.moosedrive.boots.mobs.IContainer#removeItemFromInventory(com.moosedrive.
+	 * boots.items.IItem)
 	 */
 	@Override
 	public boolean removeItem(IItem item) {
 		return contents.remove(item);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.moosedrive.boots.mobs.IContainer#clearInventory()
 	 */
 	@Override
@@ -51,13 +63,15 @@ public class Container implements IContainer{
 		return list;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.moosedrive.boots.mobs.IContainer#takeRandomItemFromInventory()
 	 */
 	@Override
 	public IItem takeRandomItem() {
 		if (!contents.isEmpty()) {
-			return contents.remove(MathUtils.random(contents.size()-1));
+			return contents.remove(MathUtils.random(contents.size() - 1));
 		}
 		return null;
 	}

@@ -7,23 +7,24 @@ package com.moosedrive.boots.mobs;
 
 /**
  *
- * @author 
+ * @author
  */
 public class CustomerFactory {
 
-    /**
-     * Create a new human customer.
-     *
-     * @param title
-     * @param firstName
-     * @param lastName
-     * @param additionalName
-     * @param health
-     * @return
-     */
-    public static Customer getHuman(String title, String firstName, String lastName, String additionalName, int health) {
-        MobName humanName = new MobName(title, lastName, firstName, additionalName, MobConstants.MOB_TYPE_HUMAN);
-        return new Customer(humanName, 2, 2, 1, health);
-    }
+	/**
+	 * Create a new human customer.
+	 *
+	 * @param title
+	 * @param firstName
+	 * @param lastName
+	 * @param additionalName
+	 * @param health
+	 * @return
+	 */
+	public static Customer getHuman(String title, String firstName, String lastName, String additionalName,
+			int health) {
+		MobName humanName = new MobName(title, lastName, firstName, additionalName, MobConstants.MOB_TYPE_HUMAN);
+		return new Customer(humanName, 2, 2, 1, health);
+	}
 
 }

@@ -14,9 +14,9 @@ import com.moosedrive.boots.items.ItemUtils;
  */
 public class Boot extends ArmorItem {
 
-    Boot(int armorValue, double encumbrance, int condition, int durability) {
-        super(armorValue, encumbrance, condition, durability);
-    }
+	Boot(int armorValue, double encumbrance, int condition, int durability) {
+		super(armorValue, encumbrance, condition, durability);
+	}
 
 	@Override
 	public int getBasePrice() {

@@ -1,6 +1,6 @@
 package com.moosedrive.boots.items;
 
-public interface IBreakableItem extends IItem{
+public interface IBreakableItem extends IItem {
 
 	/**
 	 * Returns the item's condition as a percentage of durability (0.0 to 1.0)
@@ -21,7 +21,8 @@ public interface IBreakableItem extends IItem{
 	/**
 	 * Set the current item condition as a fraction of the durability
 	 *
-	 * @param condition A double value 0 to 1.0
+	 * @param condition
+	 *            A double value 0 to 1.0
 	 */
 	void setCondition(int condition);
 

@@ -58,16 +58,16 @@ public class Populace {
 						MathUtils.random(10, 30)));
 			}
 			monsters.parallelStream().forEach(m -> {
-				if (MathUtils.random(1,50) == 1) {
-					//1:50 chance for a random boot
+				if (MathUtils.random(1, 50) == 1) {
+					// 1:50 chance for a random boot
 					m.addItem(ArmorFactory.getRandomBoot());
 				}
-				if (MathUtils.random(1,20) == 1) {
-					//1:20 chance for a health potion
+				if (MathUtils.random(1, 20) == 1) {
+					// 1:20 chance for a health potion
 					m.addItem(new HealthPotion(Potion.POTION_SMALL));
 				}
-				if (MathUtils.random(1,10) == 1) {
-					//1:10 chance for some gold
+				if (MathUtils.random(1, 10) == 1) {
+					// 1:10 chance for some gold
 					m.setMoney(MathUtils.random(5, 20));
 				}
 			});
@@ -112,10 +112,9 @@ public class Populace {
 			records.add(record);
 		}
 
-
 		Iterator<Creature> creatit = monsters.iterator();
 		Creature creat;
-		
+
 		while (creatit.hasNext()) {
 			String[] record = new String[7];
 			creat = creatit.next();

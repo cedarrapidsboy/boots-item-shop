@@ -27,7 +27,7 @@ public abstract class Creature implements IContainer {
 	protected int numHeads;
 	protected final int maxHeads;
 	protected int curHealth;
-	
+
 	protected void setCurHealth(int curHealth) {
 		this.curHealth = curHealth;
 	}
@@ -185,10 +185,13 @@ public abstract class Creature implements IContainer {
 	 * @return the damage the creature can inflict
 	 */
 	public abstract int getDamage();
-	
+
 	/**
-	 * Apply damage to the creature. Damage may be madified depending on unique conditions and armor.
-	 * @param damage Raw damage to try and apply
+	 * Apply damage to the creature. Damage may be madified depending on unique
+	 * conditions and armor.
+	 * 
+	 * @param damage
+	 *            Raw damage to try and apply
 	 * @return damage actually applied
 	 */
 	public abstract int applyDamage(int damage);

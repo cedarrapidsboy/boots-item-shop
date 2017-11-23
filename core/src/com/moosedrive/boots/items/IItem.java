@@ -11,16 +11,17 @@ package com.moosedrive.boots.items;
  */
 public interface IItem {
 
-    /**
-     * @return base item price
-     */
-    int getBasePrice();
 	/**
-     * A value representing the weight of this item
-     *
-     * @return float weight of this item
-     */
-    double getEncumbrance();
-    
-    String getName();
+	 * @return base item price
+	 */
+	int getBasePrice();
+
+	/**
+	 * A value representing the weight of this item
+	 *
+	 * @return float weight of this item
+	 */
+	double getEncumbrance();
+
+	String getName();
 }

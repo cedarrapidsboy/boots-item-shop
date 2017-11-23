@@ -26,57 +26,58 @@ import com.moosedrive.boots.mobs.MobName;
  */
 public class NameUtils {
 
-    private static Map<Integer, List<String>> firstNameMap = new HashMap<Integer, List<String>>();
+	private static Map<Integer, List<String>> firstNameMap = new HashMap<Integer, List<String>>();
 
-    private NameUtils() {
-    }
+	private NameUtils() {
+	}
 
-    public static void initializeNames() throws IOException {
-        System.out.println("Initializing name cache...");
-        firstNameMap.clear();
-        long nameCount = 0;
-        FileHandle namesDir = Gdx.files.internal("data/names");
-        FileHandle[] files = namesDir.list((File dir, String name) -> name.matches("names_[0-9][0-9]"));
-        Iterator<FileHandle> fileIterator = Arrays.asList(files).listIterator();
-        BufferedReader reader;
-        while (fileIterator.hasNext()) {
-            FileHandle file = fileIterator.next();
-            System.out.println("...reading file " + file.name());
-            Integer index = Integer.valueOf(file.name().split("_")[1]);
-            reader = new BufferedReader(file.reader());
-            List<String> names = reader.lines().collect(Collectors.toList());
-            firstNameMap.put(index, names);
-            nameCount += names.size();
-        }
-        System.out.println("...FINISHED initializing name cache. (" + nameCount + " names loaded)");
+	public static void initializeNames() throws IOException {
+		System.out.println("Initializing name cache...");
+		firstNameMap.clear();
+		long nameCount = 0;
+		FileHandle namesDir = Gdx.files.internal("data/names");
+		FileHandle[] files = namesDir.list((File dir, String name) -> name.matches("names_[0-9][0-9]"));
+		Iterator<FileHandle> fileIterator = Arrays.asList(files).listIterator();
+		BufferedReader reader;
+		while (fileIterator.hasNext()) {
+			FileHandle file = fileIterator.next();
+			System.out.println("...reading file " + file.name());
+			Integer index = Integer.valueOf(file.name().split("_")[1]);
+			reader = new BufferedReader(file.reader());
+			List<String> names = reader.lines().collect(Collectors.toList());
+			firstNameMap.put(index, names);
+			nameCount += names.size();
+		}
+		System.out.println("...FINISHED initializing name cache. (" + nameCount + " names loaded)");
 
-    }
+	}
 
-    /**
-     * Gets a first name from the name files. Assumes the files have been read
-     * already. Returns the name "Uninitialized" if the name cache is empty
-     * (e.g., the application hasn't already called initializeNames()).
-     *
-     * @param mobType See MobConstants
-     * @return A first name
-     */
-    public static String getRandomFirstName(int mobType) {
-        int index = mobType;
-        String name = "Uninitialized";
-        if (!firstNameMap.containsKey(index)) {
-            index = 0;
-        } else if (!firstNameMap.containsKey(index)) {
-            index = -1;
-        }
-        if (index > -1) {
-            List<String> names = firstNameMap.get(index);
-            name = names.get(MathUtils.random(names.size() - 1));
-        }
-        return name;
-    }
-    
-    public static MobName getSimpleName(String name, int mobType) {
-    	return new MobName("", "", name, "", mobType);
-    }
+	/**
+	 * Gets a first name from the name files. Assumes the files have been read
+	 * already. Returns the name "Uninitialized" if the name cache is empty (e.g.,
+	 * the application hasn't already called initializeNames()).
+	 *
+	 * @param mobType
+	 *            See MobConstants
+	 * @return A first name
+	 */
+	public static String getRandomFirstName(int mobType) {
+		int index = mobType;
+		String name = "Uninitialized";
+		if (!firstNameMap.containsKey(index)) {
+			index = 0;
+		} else if (!firstNameMap.containsKey(index)) {
+			index = -1;
+		}
+		if (index > -1) {
+			List<String> names = firstNameMap.get(index);
+			name = names.get(MathUtils.random(names.size() - 1));
+		}
+		return name;
+	}
+
+	public static MobName getSimpleName(String name, int mobType) {
+		return new MobName("", "", name, "", mobType);
+	}
 
 }

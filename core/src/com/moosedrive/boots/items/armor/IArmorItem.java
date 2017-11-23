@@ -13,10 +13,10 @@ import com.moosedrive.boots.items.IBreakableItem;
  */
 public interface IArmorItem extends IBreakableItem {
 
-    /**
-     * A value representing the protection this armorValue provides a mob
-     *
-     * @return value of current armorValue
-     */
-    int getArmorValue();
+	/**
+	 * A value representing the protection this armorValue provides a mob
+	 *
+	 * @return value of current armorValue
+	 */
+	int getArmorValue();
 }
