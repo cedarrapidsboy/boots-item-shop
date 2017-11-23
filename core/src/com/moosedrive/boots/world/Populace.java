@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
@@ -20,6 +22,7 @@ import com.moosedrive.boots.mobs.Creature;
 import com.moosedrive.boots.mobs.Customer;
 import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
+import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
 import com.moosedrive.boots.utils.NameUtils;
 
@@ -32,10 +35,12 @@ public class Populace {
 	private static Populace pop;
 	private final Set<Customer> customers;
 	private final Set<Creature> monsters;
+	private final List<List<Creature>> combatList;
 
 	private Populace() {
 		customers = new HashSet<Customer>();
 		monsters = new HashSet<Creature>();
+		combatList = new ArrayList<List<Creature>>();
 	}
 
 	public static Populace getInstance() {
@@ -131,4 +136,12 @@ public class Populace {
 		return records;
 	}
 
+	private List<Creature> isFighting (Creature creature) {
+		Optional<List<Creature>> opt = combatList.stream().filter(cl -> cl.contains(creature)).findFirst();
+		List<Creature> opponents = new ArrayList<Creature>();
+		if (opt.isPresent()) {
+			opponents = opt.get().stream().filter(c -> c instanceof Monster).filter(c -> !((Monster) c).isFriendly()).collect(Collectors.toList());
+		}
+		return opponents;
+	}
 }
