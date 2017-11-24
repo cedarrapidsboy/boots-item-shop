@@ -10,8 +10,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
@@ -33,6 +35,12 @@ public class Populace {
 	private final Set<Customer> customers;
 	private final Set<Creature> monsters;
 	private final List<List<Creature>> combatList;
+	private static final int MIN_CUSTOMERS = 5;
+	private static final int SPAWN_MILLIS = 1000;
+	private static final int ACTION_MILLIS = 1000;
+	private long lastTick = 0;
+	private long lastSpawn = 0;
+	private long lastAction = 0;
 
 	private Populace() {
 		customers = new HashSet<Customer>();
@@ -48,31 +56,40 @@ public class Populace {
 	}
 
 	public void populateWorld() {
-		for (int i = 0; i < 5; i++) {
-			Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "",
-					"", 100);
-			cust.addItem(new HealthPotion(Potion.POTION_SMALL));
-			cust.setMoney(MathUtils.random(10, 100));
-			customers.add(cust);
-			for (int x = 0; x < 3; x++) {
-				// Add some spiders per customer
-				monsters.add(Spider.getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
-						MathUtils.random(10, 30)));
+		for (int i = 0; i < MIN_CUSTOMERS; i++) {
+			addCustomerAndSpiders(customers, monsters);
+		}
+	}
+
+	/**
+	 * Adds one customer and three spiders to provided lists
+	 * 
+	 * @param custs
+	 * @param monsts
+	 */
+	public static void addCustomerAndSpiders(Set<Customer> custs, Set<Creature> monsts) {
+		Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "", "",
+				100);
+		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
+		cust.setMoney(MathUtils.random(10, 100));
+		custs.add(cust);
+		for (int x = 0; x < 3; x++) {
+			// Add some spiders per customer
+			Spider spider = Spider.getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
+					MathUtils.random(10, 30));
+			if (MathUtils.random(1, 10) == 1) {
+				// 1:10 chance for a random boot
+				spider.addItem(ArmorFactory.getRandomBoot());
 			}
-			monsters.parallelStream().forEach(m -> {
-				if (MathUtils.random(1, 50) == 1) {
-					// 1:50 chance for a random boot
-					m.addItem(ArmorFactory.getRandomBoot());
-				}
-				if (MathUtils.random(1, 20) == 1) {
-					// 1:20 chance for a health potion
-					m.addItem(new HealthPotion(Potion.POTION_SMALL));
-				}
-				if (MathUtils.random(1, 10) == 1) {
-					// 1:10 chance for some gold
-					m.setMoney(MathUtils.random(5, 20));
-				}
-			});
+			if (MathUtils.random(1, 5) == 1) {
+				// 1:5 chance for a health potion
+				spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+			}
+			if (MathUtils.random(1, 3) == 1) {
+				// 1:3 chance for some gold
+				spider.setMoney(MathUtils.random(5, 20));
+			}
+			monsts.add(spider);
 		}
 	}
 
@@ -81,7 +98,7 @@ public class Populace {
 	 * @return Number of entities in the populace
 	 */
 	public int count() {
-		return customers.size();
+		return customers.size() + monsters.size();
 	}
 
 	public void addCustomerToWorld() {
@@ -101,16 +118,18 @@ public class Populace {
 		ArrayList<String[]> records = new ArrayList<String[]>();
 		Iterator<Customer> custit = customers.iterator();
 		Customer cust;
+		List<Creature> tmpList;
 		while (custit.hasNext()) {
 			String[] record = new String[7];
 			cust = custit.next();
+			tmpList = isFighting(cust);
 			record[0] = cust.name().getName();
 			record[1] = String.valueOf(cust.getCurHealth());
 			record[2] = String.valueOf(cust.getDamage());
 			record[3] = String.valueOf(0);
 			record[4] = String.valueOf(cust.getMoney());
 			record[5] = ContainerUtils.inventorySummary(cust.getContents());
-			record[6] = "Adventuring.";
+			record[6] = (tmpList.size() == 0) ? "Adventuring." : "Fighting.";
 			records.add(record);
 		}
 
@@ -120,17 +139,49 @@ public class Populace {
 		while (creatit.hasNext()) {
 			String[] record = new String[7];
 			creat = creatit.next();
+			tmpList = isFighting(creat);
 			record[0] = creat.name().getName();
 			record[1] = String.valueOf(creat.getCurHealth());
 			record[2] = String.valueOf(creat.getDamage());
 			record[3] = String.valueOf(0);
 			record[4] = String.valueOf(creat.getMoney());
 			record[5] = ContainerUtils.inventorySummary(creat.getContents());
-			record[6] = "Creeping.";
+			record[6] = (tmpList.size() == 0) ? "Creeping." : "Fighting.";
 			records.add(record);
 		}
 
 		return records;
+	}
+
+	public void worldTick() {
+		long currentMillis = TimeUtils.millis();
+		// Spawns and de-spawns
+		lastSpawn = processSpawns(lastSpawn);
+
+		lastTick = currentMillis;
+	}
+
+	/**
+	 * Adds and removes creatures
+	 * 
+	 * @param deltaMillis
+	 *            time of last spawn update
+	 * @return time of last spawn update (same as deltaMillis if update not yet
+	 *         scheduled)
+	 */
+	private long processSpawns(long deltaMillis) {
+		if ((TimeUtils.millis() - deltaMillis) > SPAWN_MILLIS) {
+			if (customers.size() < MIN_CUSTOMERS) {
+				addCustomerAndSpiders(customers, monsters);
+			}
+			customers.removeAll(
+					customers.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			monsters.removeAll(
+					monsters.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+
+			return TimeUtils.millis();
+		}
+		return deltaMillis;
 	}
 
 	/**

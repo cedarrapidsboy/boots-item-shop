@@ -47,6 +47,7 @@ public class BootsGame extends ApplicationAdapter {
 
 			worldText = new Table(skin);
 			worldTextScroller = new ScrollPane(worldText, skin);
+			worldText.align(Align.topLeft);
 			worldTextScroller.setFadeScrollBars(false);
 			shopText = new Label("shop-info", skin, "status");
 			shopText.setAlignment(Align.topLeft);
@@ -58,14 +59,14 @@ public class BootsGame extends ApplicationAdapter {
 			// TODO remove debugging line
 			table.setDebug(true);
 
-			table.add(worldTextScroller).expand().fill();
+			table.add(worldTextScroller).expand().fill().align(Align.topLeft);
 			table.add();
 			table.row();
 			table.add();
 			table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
 
 			// TESTING
-			populace.populateWorld();
+			//populace.populateWorld();
 
 		} catch (IOException ex) {
 			Logger.getLogger(BootsGame.class.getName()).log(Level.SEVERE, null, ex);
@@ -84,6 +85,7 @@ public class BootsGame extends ApplicationAdapter {
 		// batch.draw(img, 0, 0);
 		// batch.end();
 		processKeyPresses();
+		populace.worldTick();
 		updateText();
 
 	}
