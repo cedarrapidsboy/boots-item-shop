@@ -255,8 +255,8 @@ public class Populace {
 					customers.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
 			monsters.removeAll(
 					monsters.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
-			if (MathUtils.random(1, 3) == 1) {
-				// 1:3 chance for another spider
+			if (MathUtils.random(1, 2) == 1) {
+				// 1:2 chance for another spider
 				monsters.add(Spider.getRandomSpider());
 			}
 
