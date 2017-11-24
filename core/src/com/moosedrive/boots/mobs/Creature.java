@@ -26,9 +26,9 @@ public abstract class Creature implements IContainer {
 	protected final int maxArms;
 	protected int numHeads;
 	protected final int maxHeads;
-	protected int curHealth;
+	protected long curHealth;
 
-	protected void setCurHealth(int curHealth) {
+	protected void setCurHealth(long curHealth) {
 		this.curHealth = curHealth;
 	}
 
@@ -69,7 +69,7 @@ public abstract class Creature implements IContainer {
 		return numHeads;
 	}
 
-	public int getCurHealth() {
+	public long getCurHealth() {
 		return curHealth;
 	}
 

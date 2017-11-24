@@ -6,6 +6,7 @@
 package com.moosedrive.boots.world;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
 import com.moosedrive.boots.items.potions.Potion;
@@ -22,6 +22,7 @@ import com.moosedrive.boots.mobs.Creature;
 import com.moosedrive.boots.mobs.Customer;
 import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
+import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
 import com.moosedrive.boots.utils.NameUtils;
 
@@ -37,9 +38,11 @@ public class Populace {
 	private final List<List<Creature>> combatList;
 	private static final int MIN_CUSTOMERS = 5;
 	private static final int SPAWN_MILLIS = 1000;
+	private static final int FIGHT_MILLIS = 1000;
 	private static final int ACTION_MILLIS = 1000;
 	private long lastTick = 0;
 	private long lastSpawn = 0;
+	private long lastFight = 0;
 	private long lastAction = 0;
 
 	private Populace() {
@@ -73,22 +76,8 @@ public class Populace {
 		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
 		cust.setMoney(MathUtils.random(10, 100));
 		custs.add(cust);
-		for (int x = 0; x < 3; x++) {
-			// Add some spiders per customer
-			Spider spider = Spider.getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
-					MathUtils.random(10, 30));
-			if (MathUtils.random(1, 10) == 1) {
-				// 1:10 chance for a random boot
-				spider.addItem(ArmorFactory.getRandomBoot());
-			}
-			if (MathUtils.random(1, 5) == 1) {
-				// 1:5 chance for a health potion
-				spider.addItem(new HealthPotion(Potion.POTION_SMALL));
-			}
-			if (MathUtils.random(1, 3) == 1) {
-				// 1:3 chance for some gold
-				spider.setMoney(MathUtils.random(5, 20));
-			}
+		for (int x = 0; x < 10; x++) {
+			Spider spider = Spider.getRandomSpider();
 			monsts.add(spider);
 		}
 	}
@@ -126,7 +115,7 @@ public class Populace {
 			record[0] = cust.name().getName();
 			record[1] = String.valueOf(cust.getCurHealth());
 			record[2] = String.valueOf(cust.getDamage());
-			record[3] = String.valueOf(0);
+			record[3] = String.valueOf(cust.getArmorValue());
 			record[4] = String.valueOf(cust.getMoney());
 			record[5] = ContainerUtils.inventorySummary(cust.getContents());
 			record[6] = (tmpList.size() == 0) ? "Adventuring." : "Fighting.";
@@ -157,8 +146,96 @@ public class Populace {
 		long currentMillis = TimeUtils.millis();
 		// Spawns and de-spawns
 		lastSpawn = processSpawns(lastSpawn);
+		// Process fights
+		// Pick fights
+		lastFight = processFights(lastFight);
 
 		lastTick = currentMillis;
+	}
+
+	private long processFights(long deltaMillis) {
+		if ((TimeUtils.millis() - deltaMillis) > FIGHT_MILLIS) {
+			// process fights
+			customers.forEach(customer -> {
+				List<Creature> fighters = isFighting(customer);
+				if (fighters.size() > 0) {
+					Creature weakest = fighters.stream().filter(f -> f instanceof Monster)
+							.filter(m -> !((Monster) m).isFriendly()).min(Comparator.comparing(m -> m.getCurHealth()))
+							.orElse(customer);
+					if (weakest != customer) {
+						System.out.println(customer.name().getName() + " is fighting " + weakest.name().getName());
+						if (customer.getCurHealth() > 0 && weakest.getCurHealth() > 0) {
+							// customer takes a swing
+							weakest.applyDamage(customer.getDamage());
+							// monster takes a swing
+							if (weakest.getCurHealth() >= 0) {
+								customer.applyDamage(weakest.getDamage());
+							}
+						}
+						if (customer.getCurHealth() <= 0) {
+							// give items to monster because customer died
+							customer.getContents().forEach(i -> weakest.addItem(i));
+							weakest.setMoney(customer.getMoney() + weakest.getMoney());
+						}
+						if (weakest.getCurHealth() <= 0) {
+							// give items to customer because monster died
+							weakest.getContents().forEach(i -> customer.addItem(i));
+							customer.setMoney(customer.getMoney() + weakest.getMoney());
+							// customer heals if possible and equips new stuff
+							long healing = customer.heal();
+							if (healing > 0) {
+								System.out.println(
+										customer.name().getName() + " drinks a potion for " + healing + " healing.");
+							}
+							customer.equipBestBoots();
+						}
+
+					}
+				}
+			});
+			// Remove dead combatants
+			combatList.forEach(l -> {
+				List<Creature> toRemove = l.stream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList());
+				toRemove.forEach(c -> {
+					l.remove(c);
+					System.out.println(c.name().getName() + " died and has been removed from combat.");
+				});
+
+			});
+			// Remove combat groups of 1
+			combatList.removeAll(combatList.stream().filter(l -> l.size() <= 1).collect(Collectors.toList()));
+			// Remove monster-only combats
+			ArrayList<List<Creature>> monsterParties = new ArrayList<>();
+			Iterator<List<Creature>> it = combatList.iterator();
+			while (it.hasNext()) {
+				List<Creature> list = it.next();
+				boolean isMonsterParty = true;
+				Iterator<Creature> c = list.iterator();
+				while (c.hasNext()) {
+					if (c.next() instanceof Customer) {
+						isMonsterParty = false;
+					}
+				}
+				if (isMonsterParty) {
+					monsterParties.add(list);
+				}
+				;
+			}
+			combatList.removeAll(monsterParties);
+
+			// pickfights
+			List<Creature> notFighting = monsters.parallelStream().filter(c -> isFighting(c).size() == 0)
+					.collect(Collectors.toList());
+			notFighting.forEach(m -> {
+				// 1:50 chance of picking a fight a customer
+				if (MathUtils.random(1, 20) == 1) {
+					ArrayList<Customer> entities = new ArrayList<Customer>(customers);
+					startFighting(entities.get(MathUtils.random(entities.size() - 1)), m);
+				}
+			});
+			return TimeUtils.millis();
+		}
+		return deltaMillis;
 	}
 
 	/**
@@ -178,6 +255,10 @@ public class Populace {
 					customers.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
 			monsters.removeAll(
 					monsters.parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			if (MathUtils.random(1, 3) == 1) {
+				// 1:3 chance for another spider
+				monsters.add(Spider.getRandomSpider());
+			}
 
 			return TimeUtils.millis();
 		}

@@ -5,11 +5,14 @@
  */
 package com.moosedrive.boots.mobs;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.armor.IArmorItem;
+import com.moosedrive.boots.items.potions.HealthPotion;
 
 /**
  * Represents a customer of the item shop. A customer will have funds, an
@@ -25,6 +28,7 @@ public class Customer extends Creature {
 
 	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
 		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG);
+		equippedArmor = new ArrayList<IArmorItem>();
 	}
 
 	@Override
@@ -46,10 +50,9 @@ public class Customer extends Creature {
 	 * 
 	 * @return Boots that were equipped (may be empty)
 	 */
-	private List<Boot> equipBestBoots() {
+	public List<Boot> equipBestBoots() {
 		takeOffBoots();
-		List<Boot> boots = getInventoryBoots().stream().sorted(
-				(Boot boot1, Boot boot2) -> Double.compare(boot1.getConditionPercent(), boot2.getConditionPercent()))
+		List<Boot> boots = getInventoryBoots().stream().sorted(Comparator.comparing(Boot::getArmorValue).reversed())
 				.collect(Collectors.toList());
 		int bootsToPutOn = (boots.size() > getNumLegs()) ? getNumLegs() : boots.size();
 		for (int i = 0; i < bootsToPutOn; i++) {
@@ -63,7 +66,7 @@ public class Customer extends Creature {
 	private void takeOffBoots() {
 		List<Boot> equipped = getEquippedBoots();
 		// remove boots from equipped items
-		equippedArmor = equippedArmor.parallelStream().filter(armor -> !(armor instanceof Boot))
+		equippedArmor = equippedArmor.stream().filter(armor -> !(armor instanceof Boot))
 				.map(armor -> (Boot) armor).collect(Collectors.toList());
 		// add boots to inventory
 		inventory.addAll(equipped);
@@ -101,12 +104,29 @@ public class Customer extends Creature {
 		if (newDamage < 0) {
 			newDamage = 0;
 		}
-		int newHealth = getCurHealth() - damage;
+		long newHealth = getCurHealth() - newDamage;
 		if (newHealth < 0) {
 			newHealth = 0;
 		}
 		setCurHealth(newHealth);
-		return damage;
+		return newDamage;
+	}
+
+	public long heal() {
+		
+		HealthPotion pot = (HealthPotion) getContents().stream()
+				.filter(i -> i instanceof HealthPotion)
+				.max(Comparator.comparing(p -> ((HealthPotion)p).getBasePrice())).orElse(null);
+		if (pot != null) {
+			long healingVal = pot.drinkPotion();
+			long prevHealth = getCurHealth();
+			setCurHealth(getCurHealth() + healingVal);
+			if (getCurHealth() > maxHealth) { setCurHealth(maxHealth);}
+			
+			removeItem(pot);
+			return getCurHealth() - prevHealth;
+		}
+		return 0;
 	}
 
 }

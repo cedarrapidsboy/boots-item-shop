@@ -5,6 +5,12 @@
  */
 package com.moosedrive.boots.mobs;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.moosedrive.boots.items.armor.ArmorFactory;
+import com.moosedrive.boots.items.potions.HealthPotion;
+import com.moosedrive.boots.items.potions.Potion;
+import com.moosedrive.boots.utils.NameUtils;
+
 /**
  *
  * @author cedarrapidsboy
@@ -27,12 +33,31 @@ public class Spider extends Monster {
 
 	@Override
 	public int applyDamage(int damage) {
-		int newHealth = getCurHealth() - damage;
+		long newHealth = getCurHealth() - damage;
 		if (newHealth < 0) {
 			newHealth = 0;
 		}
 		setCurHealth(newHealth);
 		return damage;
+	}
+
+	public static Spider getRandomSpider() {
+		// Add some spiders per customer
+		Spider spider = getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
+				MathUtils.random(10, 30));
+		if (MathUtils.random(1, 10) == 1) {
+			// 1:10 chance for a random boot
+			spider.addItem(ArmorFactory.getRandomBoot());
+		}
+		if (MathUtils.random(1, 3) == 1) {
+			// 1:3 chance for a health potion
+			spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+		}
+		if (MathUtils.random(1, 3) == 1) {
+			// 1:3 chance for some gold
+			spider.setMoney(MathUtils.random(5, 20));
+		}
+		return spider;
 	}
 
 }
