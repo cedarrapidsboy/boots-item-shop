@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
@@ -22,7 +20,6 @@ import com.moosedrive.boots.mobs.Creature;
 import com.moosedrive.boots.mobs.Customer;
 import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
-import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
 import com.moosedrive.boots.utils.NameUtils;
 
@@ -136,12 +133,63 @@ public class Populace {
 		return records;
 	}
 
-	private List<Creature> isFighting (Creature creature) {
-		Optional<List<Creature>> opt = combatList.stream().filter(cl -> cl.contains(creature)).findFirst();
-		List<Creature> opponents = new ArrayList<Creature>();
-		if (opt.isPresent()) {
-			opponents = opt.get().stream().filter(c -> c instanceof Monster).filter(c -> !((Monster) c).isFriendly()).collect(Collectors.toList());
+	/**
+	 * Checks if creature is fighting and returns the combat participants
+	 * 
+	 * @param creature
+	 * @return List of creatures fighting with/against creature. Empty list if
+	 *         creature not fighting.
+	 */
+	private List<Creature> isFighting(Creature creature) {
+		Iterator<List<Creature>> it = combatList.iterator();
+		while (it.hasNext()) {
+			List<Creature> fighters = it.next();
+			if (fighters.contains(creature)) {
+				return fighters;
+			}
 		}
-		return opponents;
+		return new ArrayList<>();
+	}
+
+	/**
+	 * Makes the customer and creature fight. One will join the fight if the other
+	 * is already engaged. Otherwise, a new fight between the two is started.
+	 * 
+	 * @param customer
+	 * @param creature
+	 * @return List of existing combatants, or a new list, with the customer and
+	 *         creature added. Empty list if both are already fighting in other
+	 *         battles. null if one was already fighting but something goes wrong.
+	 */
+	private List<Creature> startFighting(Customer customer, Creature creature) {
+		boolean customerFighting = isFighting(customer).size() > 0;
+		boolean creatureFighting = isFighting(creature).size() > 0;
+		if (customerFighting && creatureFighting) {
+			// Both are already in combat -- cannot fight each other (or already are)
+			return new ArrayList<>();
+		} else if (!customerFighting && !creatureFighting) {
+			// Neither are fighting so they fight each other
+			ArrayList<Creature> newFight = new ArrayList<>();
+			newFight.add(customer);
+			newFight.add(creature);
+			combatList.add(newFight);
+			return newFight;
+		} else {
+			// One is fighting.. so the other will join in the existing combat
+			Iterator<List<Creature>> it = combatList.iterator();
+			List<Creature> combatants = null;
+			while (it.hasNext()) {
+				combatants = it.next();
+				if (customerFighting && combatants.contains(customer)) {
+					combatants.add(creature);
+					return combatants;
+				} else if (creatureFighting && combatants.contains(creature)) {
+					combatants.add(customer);
+					return combatants;
+				}
+			}
+		}
+		// For some reason the combat could not be found
+		return null;
 	}
 }
