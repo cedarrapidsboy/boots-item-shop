@@ -9,7 +9,7 @@ package com.moosedrive.boots.mobs;
  *
  * @author
  */
-public class CustomerFactory {
+public class CreatureFactory {
 
 	/**
 	 * Create a new human customer.
