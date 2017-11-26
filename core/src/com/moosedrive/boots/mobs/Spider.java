@@ -16,7 +16,7 @@ import com.moosedrive.boots.utils.NameUtils;
  * @author cedarrapidsboy
  */
 public class Spider extends Monster {
-	private final static int BASE_DMG = 10;
+	private final static int BASE_DMG = 15;
 
 	private Spider(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
 		super(name, numLegs, numArms, numHeads, maxHealth, false, BASE_DMG);

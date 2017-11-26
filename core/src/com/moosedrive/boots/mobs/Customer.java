@@ -66,8 +66,8 @@ public class Customer extends Creature {
 	private void takeOffBoots() {
 		List<Boot> equipped = getEquippedBoots();
 		// remove boots from equipped items
-		equippedArmor = equippedArmor.stream().filter(armor -> !(armor instanceof Boot))
-				.map(armor -> (Boot) armor).collect(Collectors.toList());
+		equippedArmor = equippedArmor.stream().filter(armor -> !(armor instanceof Boot)).map(armor -> (Boot) armor)
+				.collect(Collectors.toList());
 		// add boots to inventory
 		inventory.addAll(equipped);
 	}
@@ -113,16 +113,17 @@ public class Customer extends Creature {
 	}
 
 	public long heal() {
-		
-		HealthPotion pot = (HealthPotion) getContents().stream()
-				.filter(i -> i instanceof HealthPotion)
-				.max(Comparator.comparing(p -> ((HealthPotion)p).getBasePrice())).orElse(null);
-		if (pot != null) {
+
+		HealthPotion pot = (HealthPotion) getContents().stream().filter(i -> i instanceof HealthPotion)
+				.max(Comparator.comparing(p -> ((HealthPotion) p).getBasePrice())).orElse(null);
+		if (pot != null && (getCurHealth() < maxHealth * .5F)) {
 			long healingVal = pot.drinkPotion();
 			long prevHealth = getCurHealth();
 			setCurHealth(getCurHealth() + healingVal);
-			if (getCurHealth() > maxHealth) { setCurHealth(maxHealth);}
-			
+			if (getCurHealth() > maxHealth) {
+				setCurHealth(maxHealth);
+			}
+
 			removeItem(pot);
 			return getCurHealth() - prevHealth;
 		}
