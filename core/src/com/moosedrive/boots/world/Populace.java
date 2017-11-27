@@ -47,6 +47,14 @@ public class Populace {
 	private long lastSpawn = 0;
 	private long lastFight = 0;
 	private long lastAction = 0;
+	
+	public int getMonsterCount() {
+		return monsters.size();
+	}
+	
+	public int getCustomerCount() {
+		return customers.size();
+	}
 
 	public void addSpider() {
 		this.spiderWaitingToSpawn++;

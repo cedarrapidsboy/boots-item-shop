@@ -15,7 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.utils.NameUtils;
@@ -39,6 +41,7 @@ public class BootsGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 		try {
+			lastFrameCount = TimeUtils.millis();
 			NameUtils.initializeNames();
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
@@ -76,6 +79,9 @@ public class BootsGame extends ApplicationAdapter {
 		}
 	}
 
+	private long frames = 0;
+	private long lastFrameCount = 0;
+
 	@Override
 	public void render() {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -83,6 +89,7 @@ public class BootsGame extends ApplicationAdapter {
 
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
+		updateTitle();
 		// batch.begin();
 		// batch.draw(img, 0, 0);
 		// batch.end();
@@ -90,6 +97,27 @@ public class BootsGame extends ApplicationAdapter {
 		populace.worldTick();
 		updateText();
 
+	}
+
+	/**
+	 * Update the game title (including FPS)
+	 */
+	private void updateTitle() {
+		frames++;
+		long currentTime = TimeUtils.millis();
+		if ((currentTime - lastFrameCount) > 3000) {
+			StringBuilder sb = new StringBuilder("Boots Simulator");
+			sb.append(" (FPS: ");
+			sb.append(frames / ((currentTime - lastFrameCount) / 1000));
+			sb.append(" Mon: ");
+			sb.append(populace.getMonsterCount());
+			sb.append(" Cus: ");
+			sb.append(populace.getCustomerCount());
+			sb.append(")");
+			Gdx.graphics.setTitle(sb.toString());
+			lastFrameCount = currentTime;
+			frames = 0;
+		}
 	}
 
 	private void updateText() {
