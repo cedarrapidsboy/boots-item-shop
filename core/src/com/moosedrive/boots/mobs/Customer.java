@@ -6,10 +6,12 @@
 package com.moosedrive.boots.mobs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.armor.IArmorItem;
 import com.moosedrive.boots.items.potions.HealthPotion;
@@ -77,7 +79,7 @@ public class Customer extends Creature {
 	 *
 	 * @return
 	 */
-	private List<Boot> getEquippedBoots() {
+	public List<Boot> getEquippedBoots() {
 		return equippedArmor.stream().filter(armor -> armor instanceof Boot).map(armor -> (Boot) armor)
 				.collect(Collectors.toList());
 	}
@@ -109,7 +111,27 @@ public class Customer extends Creature {
 			newHealth = 0;
 		}
 		setCurHealth(newHealth);
+		
+		//damage boots
+		if (getEquippedBoots().size() > 0) {
+		ArrayList<Boot> boots = new ArrayList<Boot>(getEquippedBoots());
+		Boot aBoot = null;
+		if (boots.size() > 0) {
+			aBoot = boots.get(MathUtils.random(0,boots.size()-1));
+		}
+		if (aBoot != null) {
+			aBoot.setCondition(aBoot.getCondition() - 1);
+			if (aBoot.isBroken()) {
+				equippedArmor.remove(aBoot);
+			}
+		}
+		}
+		
 		return newDamage;
+	}
+	
+	public int bootsNeeded() {
+		return getNumLegs() - getEquippedBoots().size();
 	}
 
 	public long heal() {

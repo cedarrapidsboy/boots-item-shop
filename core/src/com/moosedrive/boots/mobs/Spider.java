@@ -45,8 +45,8 @@ public class Spider extends Monster {
 		// Add some spiders per customer
 		Spider spider = getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
 				MathUtils.random(10, 30));
-		if (MathUtils.random(1, 10) == 1) {
-			// 1:10 chance for a random boot
+		if (MathUtils.random(1, 6) == 1) {
+			// 1:6 chance for a random boot
 			spider.addItem(ArmorFactory.getRandomBoot());
 		}
 		if (MathUtils.random(1, 3) == 1) {

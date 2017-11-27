@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.moosedrive.boots.items.armor.ArmorFactory;
+import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.shops.BootShop;
@@ -66,7 +68,7 @@ public class BootsGame extends ApplicationAdapter {
 			table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
 
 			// TESTING
-			//populace.populateWorld();
+			// populace.populateWorld();
 
 		} catch (IOException ex) {
 			Logger.getLogger(BootsGame.class.getName()).log(Level.SEVERE, null, ex);
@@ -121,19 +123,35 @@ public class BootsGame extends ApplicationAdapter {
 	}
 
 	private boolean prevKeyDownC = false;
+	private boolean prevKeyDownS = false;
 	private boolean prevKeyDownB = false;
 
 	private void processKeyPresses() {
 		boolean keyDownC = Gdx.input.isKeyPressed(Input.Keys.C);
+		boolean keyDownS = Gdx.input.isKeyPressed(Input.Keys.S);
 		boolean keyDownB = Gdx.input.isKeyPressed(Input.Keys.B);
 		if (keyDownC && !prevKeyDownC) {
-			populace.addCustomerToWorld();
+			populace.addCustomer();
 			prevKeyDownC = true;
 		} else if (!keyDownC) {
 			prevKeyDownC = false;
 		}
+		if (keyDownS && !prevKeyDownS) {
+			for (int i = 0; i < 25; i++) {
+				populace.addSpider();
+			}
+			prevKeyDownS = true;
+		} else if (!keyDownS) {
+			prevKeyDownS = false;
+		}
 		if (keyDownB && !prevKeyDownB) {
-			bootShop.addBoot();
+			Boot boot = ArmorFactory.getRandomBoot();
+			BootShop shop = BootShop.getInstance();
+			int cost = BootShop.getBootCost(boot);
+			if (shop.getShopMoney() >= cost) {
+				bootShop.addBoot(boot);
+				bootShop.removeShopMoney(cost);
+			}
 			prevKeyDownB = true;
 		} else if (!keyDownB) {
 			prevKeyDownB = false;
