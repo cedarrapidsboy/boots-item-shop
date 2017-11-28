@@ -19,18 +19,10 @@ import com.moosedrive.boots.items.armor.Boot;
  *
  * @author cedarrapidsboy
  */
-public class BootShop {
+public class BootShop extends Shop {
 
 	private static BootShop thisShop;
-	private long shopMoney;
-	public void removeShopMoney(long money) {
-		this.shopMoney = this.getShopMoney() - money;
-	}
-
-	public void addShopMoney(long shopMoney) {
-		this.shopMoney = this.getShopMoney() + shopMoney;
-	}
-
+	long shopMoney;
 	private Set<Boot> stock;
 
 	public static final float ARMOR_MARKUP = 0.20F;
@@ -58,9 +50,9 @@ public class BootShop {
 				.sorted(Comparator.comparingInt(b -> getBootCost((Boot)b)).reversed()).collect(Collectors.toList());
 	}
 
-	private BootShop() {
+	private BootShop(long money) {
+		super(money);
 		stock = new HashSet<Boot>();
-		shopMoney = STARTING_FUNDS;
 	}
 
 	public boolean addBoot(Boot boot) {
@@ -87,11 +79,15 @@ public class BootShop {
 
 	public static BootShop getInstance() {
 		if (thisShop == null) {
-			thisShop = new BootShop();
+			thisShop = new BootShop(STARTING_FUNDS);
 		}
 		return thisShop;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.moosedrive.boots.world.shops.IShop#stockText()
+	 */
+	@Override
 	public String stockText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Boots: ");
@@ -100,10 +96,6 @@ public class BootShop {
 		sb.append("Money: ");
 		sb.append(getShopMoney());
 		return sb.toString();
-	}
-
-	public long getShopMoney() {
-		return shopMoney;
 	}
 
 }

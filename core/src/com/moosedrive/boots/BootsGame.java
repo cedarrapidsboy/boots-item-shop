@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
@@ -106,15 +105,9 @@ public class BootsGame extends ApplicationAdapter {
 		frames++;
 		long currentTime = TimeUtils.millis();
 		if ((currentTime - lastFrameCount) > 3000) {
-			StringBuilder sb = new StringBuilder("Boots Simulator");
-			sb.append(" (FPS: ");
-			sb.append(frames / ((currentTime - lastFrameCount) / 1000));
-			sb.append(" Mon: ");
-			sb.append(populace.getMonsterCount());
-			sb.append(" Cus: ");
-			sb.append(populace.getCustomerCount());
-			sb.append(")");
-			Gdx.graphics.setTitle(sb.toString());
+			String title = "Boots Simulator" + " (FPS: " + frames / ((currentTime - lastFrameCount) / 1000) + " Mon: "
+					+ populace.getMonsterCount() + " Cus: " + populace.getCustomerCount() + ")";
+			Gdx.graphics.setTitle(title);
 			lastFrameCount = currentTime;
 			frames = 0;
 		}

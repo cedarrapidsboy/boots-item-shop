@@ -50,8 +50,10 @@ public class Spider extends Monster {
 			spider.addItem(ArmorFactory.getRandomBoot());
 		}
 		if (MathUtils.random(1, 3) == 1) {
-			// 1:3 chance for a health potion
-			spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+			// 1:3 chance for 1-2 health potions
+			for (int i = 0; i < MathUtils.random(1,2); i++) {
+				spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+			}
 		}
 		if (MathUtils.random(1, 3) == 1) {
 			// 1:3 chance for some gold

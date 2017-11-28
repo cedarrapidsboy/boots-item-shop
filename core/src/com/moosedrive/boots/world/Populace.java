@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
@@ -47,11 +46,11 @@ public class Populace {
 	private long lastSpawn = 0;
 	private long lastFight = 0;
 	private long lastAction = 0;
-	
+
 	public int getMonsterCount() {
 		return monsters.size();
 	}
-	
+
 	public int getCustomerCount() {
 		return customers.size();
 	}
@@ -184,7 +183,6 @@ public class Populace {
 		}
 		// Spawns and de-spawns
 		lastSpawn = processSpawns(lastSpawn);
-		
 
 		// Process fights
 		// Pick fights
@@ -196,17 +194,21 @@ public class Populace {
 	private long processFights(long deltaMillis) {
 		if ((TimeUtils.millis() - deltaMillis) > FIGHT_MILLIS) {
 			// process fights
-			customers.forEach(customer -> {
+			customers.stream().forEach(customer -> {
 				List<Creature> fighters = isFighting(customer);
 				if (fighters.size() > 0) {
-					Creature weakest = fighters.stream().filter(f -> f instanceof Monster)
+					Creature weakest = fighters.parallelStream().filter(f -> f instanceof Monster)
 							.filter(m -> !((Monster) m).isFriendly()).min(Comparator.comparing(m -> m.getCurHealth()))
 							.orElse(customer);
 					if (weakest != customer) {
 						System.out.println(customer.name().getName() + " is fighting " + weakest.name().getName());
 						if (customer.getCurHealth() > 0 && weakest.getCurHealth() > 0) {
 							// customer takes a swing
-							weakest.applyDamage(customer.getDamage());
+							if (customer.heal() == 0) {
+								weakest.applyDamage(customer.getDamage());
+							} else {
+								System.out.println("+++" + customer.name().getName() + " healed during battle.");
+							}
 							// monster takes a swing
 							if (weakest.getCurHealth() >= 0) {
 								customer.applyDamage(weakest.getDamage());
@@ -221,18 +223,25 @@ public class Populace {
 							// give items to customer because monster died
 							weakest.getContents().forEach(i -> customer.addItem(i));
 							customer.setMoney(customer.getMoney() + weakest.getMoney());
-
+							// customer heals if possible and equips new stuff
+							if (customer.heal() > 0) {
+								System.out.println(
+										"+++" + customer.name().getName() + " drinks a potion.");
+							}
+							// Go buy/sell some boots (instantaneously)
+							processPurchases(customer);
+							customer.equipBestBoots();
 						}
 
 					}
 				}
 			});
 			// Remove dead combatants
-			combatList.forEach(l -> {
+			combatList.parallelStream().forEach(l -> {
 				List<Creature> toRemove = l.stream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList());
-				toRemove.forEach(c -> {
+				toRemove.parallelStream().forEach(c -> {
 					l.remove(c);
-					System.out.println(c.name().getName() + " died and has been removed from combat.");
+					System.out.println("---" + c.name().getName() + " died and has been removed from combat.");
 				});
 
 			});
@@ -256,20 +265,11 @@ public class Populace {
 				;
 			}
 			combatList.removeAll(monsterParties);
-			customers.forEach(customer -> {
-				// customer heals if possible and equips new stuff
-				long healing = customer.heal();
-				if (healing > 0) {
-					System.out.println(customer.name().getName() + " drinks a potion for " + healing + " healing.");
-				}
-				// Go buy/sell some boots (instantaneously)
-				processPurchases(customer);
-				customer.equipBestBoots();
-			});
+			
 			// pickfights
 			List<Creature> notFighting = monsters.parallelStream().filter(c -> isFighting(c).size() == 0)
 					.collect(Collectors.toList());
-			notFighting.forEach(m -> {
+			notFighting.stream().forEach(m -> {
 				// 1:50 chance of picking a fight a customer
 				if (MathUtils.random(1, 20) == 1) {
 					ArrayList<Customer> entities = new ArrayList<Customer>(customers);
