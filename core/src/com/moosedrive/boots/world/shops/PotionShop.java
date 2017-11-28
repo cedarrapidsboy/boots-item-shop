@@ -1,14 +1,9 @@
 package com.moosedrive.boots.world.shops;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.moosedrive.boots.items.potions.HealthPotion;
-import com.moosedrive.boots.items.potions.Potion;
 
 public class PotionShop extends Shop {
 
-	private static final int STARTING_FUNDS = 100;
 	private PotionShop instance;
 
 	private PotionShop(long money) {

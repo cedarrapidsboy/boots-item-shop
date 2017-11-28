@@ -41,11 +41,9 @@ public class Populace {
 	private static final int MIN_CUSTOMERS = 5;
 	private static final int SPAWN_MILLIS = 1000;
 	private static final int FIGHT_MILLIS = 500;
-	private static final int ACTION_MILLIS = 500;
 	private long lastTick = 0;
 	private long lastSpawn = 0;
 	private long lastFight = 0;
-	private long lastAction = 0;
 
 	public int getMonsterCount() {
 		return monsters.size();
@@ -188,7 +186,7 @@ public class Populace {
 		// Pick fights
 		lastFight = processFights(lastFight);
 
-		lastTick = currentMillis;
+		this.setLastTick(currentMillis);
 	}
 
 	private long processFights(long deltaMillis) {
@@ -405,5 +403,13 @@ public class Populace {
 		}
 		// For some reason the combat could not be found
 		return null;
+	}
+
+	public long getLastTick() {
+		return lastTick;
+	}
+
+	private void setLastTick(long lastTick) {
+		this.lastTick = lastTick;
 	}
 }
