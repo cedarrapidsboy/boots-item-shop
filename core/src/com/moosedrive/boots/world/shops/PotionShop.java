@@ -25,7 +25,7 @@ public class PotionShop extends Shop {
 	@Override
 	public String stockText() {
 		// TODO Auto-generated method stub
-		return null;
+		return "Health potions: Lots";
 	}
 	
 	

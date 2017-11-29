@@ -5,11 +5,7 @@
  */
 package com.moosedrive.boots.world.shops;
 
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
@@ -23,8 +19,7 @@ public class BootShop extends Shop {
 
 	private static BootShop thisShop;
 	long shopMoney;
-	private Set<Boot> stock;
-
+	private BootShopStock stock = new BootShopStock();
 	public static final float ARMOR_MARKUP = 0.20F;
 	public static final long STARTING_FUNDS = 100;
 	public static final int BASE_BOOT_COST = 10;
@@ -46,21 +41,20 @@ public class BootShop extends Shop {
 	 * @return A (copy) list of boots sorted by highest value
 	 */
 	public List<Boot> viewBootsByCost() {
-		return stock.stream().filter(i -> i instanceof Boot)
-				.sorted(Comparator.comparingInt(b -> getBootCost((Boot)b)).reversed()).collect(Collectors.toList());
+		return stock.getStockByCost();
 	}
 
 	private BootShop(long money) {
 		super(money);
-		stock = new HashSet<Boot>();
+		stock = new BootShopStock();
 	}
 
-	public boolean addBoot(Boot boot) {
-		return this.stock.add(boot);
+	public void addBoot(Boot boot) {
+		this.stock.addBoot(boot);
 	}
 
-	public synchronized boolean takeBoot(Boot boot) {
-		return stock.remove(boot);
+	public void takeBoot(Boot boot) {
+		this.stock.removeBoot(boot);
 	}
 
 	/**
@@ -72,8 +66,8 @@ public class BootShop extends Shop {
 	}
 
 	public void addBoot() {
-		stock.add(ArmorFactory.getRandomBoot());
-		System.out.println("Boot stock: " + stock.size());
+		stock.addBoot(ArmorFactory.getRandomBoot());
+		System.out.println("Boot stock: " + count());
 
 	}
 
