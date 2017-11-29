@@ -16,6 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.moosedrive.boots.items.armor.ArmorFactory;
+import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.shops.BootShop;
@@ -37,6 +40,7 @@ public class BootsGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 		try {
+			lastFrameCount = TimeUtils.millis();
 			NameUtils.initializeNames();
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
@@ -66,13 +70,16 @@ public class BootsGame extends ApplicationAdapter {
 			table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
 
 			// TESTING
-			//populace.populateWorld();
+			// populace.populateWorld();
 
 		} catch (IOException ex) {
 			Logger.getLogger(BootsGame.class.getName()).log(Level.SEVERE, null, ex);
 			this.dispose();
 		}
 	}
+
+	private long frames = 0;
+	private long lastFrameCount = 0;
 
 	@Override
 	public void render() {
@@ -81,6 +88,7 @@ public class BootsGame extends ApplicationAdapter {
 
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
+		updateTitle();
 		// batch.begin();
 		// batch.draw(img, 0, 0);
 		// batch.end();
@@ -88,6 +96,21 @@ public class BootsGame extends ApplicationAdapter {
 		populace.worldTick();
 		updateText();
 
+	}
+
+	/**
+	 * Update the game title (including FPS)
+	 */
+	private void updateTitle() {
+		frames++;
+		long currentTime = TimeUtils.millis();
+		if ((currentTime - lastFrameCount) > 3000) {
+			String title = "Boots Simulator" + " (FPS: " + frames / ((currentTime - lastFrameCount) / 1000) + " Mon: "
+					+ populace.getMonsterCount() + " Cus: " + populace.getCustomerCount() + ")";
+			Gdx.graphics.setTitle(title);
+			lastFrameCount = currentTime;
+			frames = 0;
+		}
 	}
 
 	private void updateText() {
@@ -121,19 +144,33 @@ public class BootsGame extends ApplicationAdapter {
 	}
 
 	private boolean prevKeyDownC = false;
+	private boolean prevKeyDownS = false;
 	private boolean prevKeyDownB = false;
 
 	private void processKeyPresses() {
 		boolean keyDownC = Gdx.input.isKeyPressed(Input.Keys.C);
+		boolean keyDownS = Gdx.input.isKeyPressed(Input.Keys.S);
 		boolean keyDownB = Gdx.input.isKeyPressed(Input.Keys.B);
 		if (keyDownC && !prevKeyDownC) {
-			populace.addCustomerToWorld();
+			populace.addCustomer();
 			prevKeyDownC = true;
 		} else if (!keyDownC) {
 			prevKeyDownC = false;
 		}
+		if (keyDownS && !prevKeyDownS) {
+			for (int i = 0; i < 25; i++) {
+				populace.addSpider();
+			}
+			prevKeyDownS = true;
+		} else if (!keyDownS) {
+			prevKeyDownS = false;
+		}
 		if (keyDownB && !prevKeyDownB) {
-			bootShop.addBoot();
+			Boot boot = ArmorFactory.getRandomBoot();
+			int cost = BootShop.getBootCost(boot);
+			if (bootShop.removeShopMoney(cost)) {
+				bootShop.addBoot(boot);
+			}
 			prevKeyDownB = true;
 		} else if (!keyDownB) {
 			prevKeyDownB = false;

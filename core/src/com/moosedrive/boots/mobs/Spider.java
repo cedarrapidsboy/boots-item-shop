@@ -16,7 +16,7 @@ import com.moosedrive.boots.utils.NameUtils;
  * @author cedarrapidsboy
  */
 public class Spider extends Monster {
-	private final static int BASE_DMG = 10;
+	private final static int BASE_DMG = 15;
 
 	private Spider(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
 		super(name, numLegs, numArms, numHeads, maxHealth, false, BASE_DMG);
@@ -45,13 +45,15 @@ public class Spider extends Monster {
 		// Add some spiders per customer
 		Spider spider = getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
 				MathUtils.random(10, 30));
-		if (MathUtils.random(1, 10) == 1) {
-			// 1:10 chance for a random boot
+		if (MathUtils.random(1, 6) == 1) {
+			// 1:6 chance for a random boot
 			spider.addItem(ArmorFactory.getRandomBoot());
 		}
 		if (MathUtils.random(1, 3) == 1) {
-			// 1:3 chance for a health potion
-			spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+			// 1:3 chance for 1-2 health potions
+			for (int i = 0; i < MathUtils.random(1,2); i++) {
+				spider.addItem(new HealthPotion(Potion.POTION_SMALL));
+			}
 		}
 		if (MathUtils.random(1, 3) == 1) {
 			// 1:3 chance for some gold

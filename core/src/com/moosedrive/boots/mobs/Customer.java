@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.armor.IArmorItem;
 import com.moosedrive.boots.items.potions.HealthPotion;
@@ -66,8 +67,8 @@ public class Customer extends Creature {
 	private void takeOffBoots() {
 		List<Boot> equipped = getEquippedBoots();
 		// remove boots from equipped items
-		equippedArmor = equippedArmor.stream().filter(armor -> !(armor instanceof Boot))
-				.map(armor -> (Boot) armor).collect(Collectors.toList());
+		equippedArmor = equippedArmor.stream().filter(armor -> !(armor instanceof Boot)).map(armor -> (Boot) armor)
+				.collect(Collectors.toList());
 		// add boots to inventory
 		inventory.addAll(equipped);
 	}
@@ -77,7 +78,7 @@ public class Customer extends Creature {
 	 *
 	 * @return
 	 */
-	private List<Boot> getEquippedBoots() {
+	public List<Boot> getEquippedBoots() {
 		return equippedArmor.stream().filter(armor -> armor instanceof Boot).map(armor -> (Boot) armor)
 				.collect(Collectors.toList());
 	}
@@ -109,20 +110,41 @@ public class Customer extends Creature {
 			newHealth = 0;
 		}
 		setCurHealth(newHealth);
+		
+		//damage boots
+		if (getEquippedBoots().size() > 0) {
+		ArrayList<Boot> boots = new ArrayList<Boot>(getEquippedBoots());
+		Boot aBoot = null;
+		if (boots.size() > 0) {
+			aBoot = boots.get(MathUtils.random(0,boots.size()-1));
+		}
+		if (aBoot != null) {
+			aBoot.setCondition(aBoot.getCondition() - 1);
+			if (aBoot.isBroken()) {
+				equippedArmor.remove(aBoot);
+			}
+		}
+		}
+		
 		return newDamage;
+	}
+	
+	public int bootsNeeded() {
+		return getNumLegs() - getEquippedBoots().size();
 	}
 
 	public long heal() {
-		
-		HealthPotion pot = (HealthPotion) getContents().stream()
-				.filter(i -> i instanceof HealthPotion)
-				.max(Comparator.comparing(p -> ((HealthPotion)p).getBasePrice())).orElse(null);
-		if (pot != null) {
+
+		HealthPotion pot = (HealthPotion) getContents().stream().filter(i -> i instanceof HealthPotion)
+				.max(Comparator.comparing(p -> ((HealthPotion) p).getBasePrice())).orElse(null);
+		if (pot != null && (getCurHealth() < maxHealth * .5F)) {
 			long healingVal = pot.drinkPotion();
 			long prevHealth = getCurHealth();
 			setCurHealth(getCurHealth() + healingVal);
-			if (getCurHealth() > maxHealth) { setCurHealth(maxHealth);}
-			
+			if (getCurHealth() > maxHealth) {
+				setCurHealth(maxHealth);
+			}
+
 			removeItem(pot);
 			return getCurHealth() - prevHealth;
 		}

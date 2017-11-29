@@ -5,9 +5,9 @@
  */
 package com.moosedrive.boots.world.shops;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.armor.Boot;
 
@@ -15,27 +15,46 @@ import com.moosedrive.boots.items.armor.Boot;
  *
  * @author cedarrapidsboy
  */
-public class BootShop {
+public class BootShop extends Shop {
 
 	private static BootShop thisShop;
-	private Set<Boot> stock;
+	long shopMoney;
+	private BootShopStock stock = new BootShopStock();
+	public static final float ARMOR_MARKUP = 0.20F;
+	public static final long STARTING_FUNDS = 100;
+	public static final int BASE_BOOT_COST = 10;
+	public static final float BOOT_CONDITION_MULTIPLIER = 0.5F;
 
-	private BootShop() {
-		stock = new HashSet<Boot>();
+	/**
+	 * @param boot
+	 * @return Cost of the boot after condition calculation and markup
+	 */
+	public static int getAftermarketBootCost(Boot boot) {
+		return MathUtils.round(getBootCost(boot) * (1 + ARMOR_MARKUP));
 	}
 
-	public boolean addBoot(Boot boot) {
-		return this.stock.add(boot);
+	public static int getBootCost(Boot boot) {
+		return MathUtils.round(BASE_BOOT_COST  + (boot.getCondition() * BOOT_CONDITION_MULTIPLIER));
 	}
 
-	public synchronized Boot takeBoot() {
-		Boot boot;
-		if (stock.size() > 0) {
-			boot = (Boot) stock.toArray()[0];
-		} else {
-			boot = ArmorFactory.getRandomBoot();
-		}
-		return boot;
+	/**
+	 * @return A (copy) list of boots sorted by highest value
+	 */
+	public List<Boot> viewBootsByCost() {
+		return stock.getStockByCost();
+	}
+
+	private BootShop(long money) {
+		super(money);
+		stock = new BootShopStock();
+	}
+
+	public void addBoot(Boot boot) {
+		this.stock.addBoot(boot);
+	}
+
+	public void takeBoot(Boot boot) {
+		this.stock.removeBoot(boot);
 	}
 
 	/**
@@ -47,22 +66,30 @@ public class BootShop {
 	}
 
 	public void addBoot() {
-		stock.add(ArmorFactory.getRandomBoot());
-		System.out.println("Boot stock: " + stock.size());
+		stock.addBoot(ArmorFactory.getRandomBoot());
+		System.out.println("Boot stock: " + count());
 
 	}
 
 	public static BootShop getInstance() {
 		if (thisShop == null) {
-			thisShop = new BootShop();
+			thisShop = new BootShop(STARTING_FUNDS);
 		}
 		return thisShop;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.moosedrive.boots.world.shops.IShop#stockText()
+	 */
+	@Override
 	public String stockText() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Boots: ");
 		sb.append(String.valueOf(count()));
+		sb.append(System.getProperty("line.separator"));
+		sb.append("Money: ");
+		sb.append(getShopMoney());
 		return sb.toString();
 	}
+
 }
