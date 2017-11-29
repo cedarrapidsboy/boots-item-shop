@@ -167,11 +167,9 @@ public class BootsGame extends ApplicationAdapter {
 		}
 		if (keyDownB && !prevKeyDownB) {
 			Boot boot = ArmorFactory.getRandomBoot();
-			BootShop shop = BootShop.getInstance();
 			int cost = BootShop.getBootCost(boot);
-			if (shop.getShopMoney() >= cost) {
+			if (bootShop.removeShopMoney(cost)) {
 				bootShop.addBoot(boot);
-				bootShop.removeShopMoney(cost);
 			}
 			prevKeyDownB = true;
 		} else if (!keyDownB) {

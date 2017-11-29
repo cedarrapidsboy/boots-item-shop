@@ -289,11 +289,10 @@ public class Populace {
 			List<Boot> bootsToSell = sortedBoots.subList(2, sortedBoots.size());
 			bootsToSell.forEach(b -> {
 				int bootValue = BootShop.getBootCost(b);
-				if (shop.getShopMoney() >= bootValue) {
+				if (shop.removeShopMoney(bootValue)) {
 					customer.removeItem(b);
 					shop.addBoot(b);
 					customer.setMoney(customer.getMoney() + bootValue);
-					shop.removeShopMoney(bootValue);
 				}
 			});
 		}
