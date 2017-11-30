@@ -223,8 +223,7 @@ public class Populace {
 							customer.setMoney(customer.getMoney() + weakest.getMoney());
 							// customer heals if possible and equips new stuff
 							if (customer.heal() > 0) {
-								System.out.println(
-										"+++" + customer.name().getName() + " drinks a potion.");
+								System.out.println("+++" + customer.name().getName() + " drinks a potion.");
 							}
 							// Go buy/sell some boots (instantaneously)
 							processPurchases(customer);
@@ -263,7 +262,7 @@ public class Populace {
 				;
 			}
 			combatList.removeAll(monsterParties);
-			
+
 			// pickfights
 			List<Creature> notFighting = denizens.getMonsters().parallelStream().filter(c -> isFighting(c).size() == 0)
 					.collect(Collectors.toList());
@@ -283,7 +282,7 @@ public class Populace {
 		ArrayList<Boot> sortedBoots = new ArrayList<Boot>(customer.getContents().stream().filter(i -> i instanceof Boot)
 				.map(b -> (Boot) b).sorted(Comparator.comparingInt(b -> BootShop.getBootCost((Boot) b)).reversed())
 				.collect(Collectors.toList()));
-		// Keep a spare set of boots
+		// sell boots. Keep a spare set of boots
 		BootShop shop = BootShop.getInstance();
 		if (sortedBoots.size() > 2) {
 			List<Boot> bootsToSell = sortedBoots.subList(2, sortedBoots.size());
@@ -297,6 +296,7 @@ public class Populace {
 			});
 		}
 
+		// buy boots
 		for (int i = 0; i < customer.bootsNeeded(); i++) {
 			List<Boot> browseBoots = shop.viewBootsByCost();
 			long funds = customer.getMoney();
@@ -326,10 +326,10 @@ public class Populace {
 			if (denizens.getCustomers().size() < MIN_CUSTOMERS) {
 				addCustomerAndSpiders(denizens.getCustomers(), denizens.getMonsters());
 			}
-			denizens.getCustomers().removeAll(
-					denizens.getCustomers().parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
-			denizens.getMonsters().removeAll(
-					denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			denizens.getCustomers().removeAll(denizens.getCustomers().parallelStream()
+					.filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			denizens.getMonsters().removeAll(denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0)
+					.collect(Collectors.toList()));
 			if (MathUtils.random(1, 15) == 1) {
 				// 1:15 chance for a spider rush
 				denizens.getCustomers().forEach(c -> {
