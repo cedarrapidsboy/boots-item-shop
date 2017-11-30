@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.moosedrive.boots.items.armor.Boot;
 
@@ -14,38 +14,26 @@ public class BootShopStock {
 		@Override
 		public int compare(Boot o1, Boot o2) {
 
-			int comparison = Integer.valueOf(o1.getCondition()).compareTo(o2.getCondition());
-			if (o1.equals(o2)) {
-				return 0;
-			} else if (comparison == 0) {
-				//We've verified the objects are different BUT condition is the same, put this boot next in line
-				comparison = 1;
-			}
-			return comparison;
+			return Integer.valueOf(o1.getCondition()).compareTo(o2.getCondition());
 		}
 	}
+
 	private final class BootCostComparator implements Comparator<Boot> {
 		@Override
 		public int compare(Boot o1, Boot o2) {
 
-			int comparison = Integer.valueOf(o1.getBasePrice()).compareTo(o2.getBasePrice());
-			if (o1.equals(o2)) {
-				return 0;
-			} else if (comparison == 0) {
-				//We've verified the objects are different BUT cost is the same, put this boot next in line
-				comparison = 1;
-			}
-			return comparison;
+			return Integer.valueOf(o1.getBasePrice()).compareTo(o2.getBasePrice());
 		}
 	}
+
 	private final Set<Boot> stock;
-	private final TreeSet<Boot> sortedByCost;
-	private final TreeSet<Boot> sortedByCondition;
+	private List<Boot> sortedByCost;
+	private List<Boot> sortedByCondition;
 
 	public BootShopStock() {
 		stock = new HashSet<Boot>();
-		sortedByCost = new TreeSet<Boot>(new BootCostComparator().reversed());
-		sortedByCondition = new TreeSet<Boot>(new BootConditionComparator().reversed());
+		sortedByCost = new ArrayList<Boot>();
+		sortedByCondition = new ArrayList<Boot>();
 	}
 
 	public List<Boot> getStock() {
@@ -62,16 +50,19 @@ public class BootShopStock {
 
 	public void addBoot(Boot boot) {
 		stock.add(boot);
-		sortedByCondition.add(boot);
-		sortedByCost.add(boot);
-		
+		sortedByCost = stock.stream().sorted(new BootCostComparator().reversed()).collect(Collectors.toList());
+		sortedByCondition = stock.stream().sorted(new BootConditionComparator().reversed())
+				.collect(Collectors.toList());
+
 	}
 
 	public void removeBoot(Boot boot) {
 		stock.remove(boot);
-		sortedByCondition.remove(boot);
-		sortedByCost.remove(boot);
+		sortedByCost = stock.stream().sorted(new BootCostComparator().reversed()).collect(Collectors.toList());
+		sortedByCondition = stock.stream().sorted(new BootConditionComparator().reversed())
+				.collect(Collectors.toList());
 	}
+
 	public int size() {
 		return stock.size();
 	}
