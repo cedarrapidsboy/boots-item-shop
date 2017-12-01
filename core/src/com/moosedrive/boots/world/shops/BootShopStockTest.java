@@ -1,6 +1,7 @@
 package com.moosedrive.boots.world.shops;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,7 +29,7 @@ class BootShopStockTest {
 	}
 
 	@Test
-	void testAddBoot() {
+	void testAddBootIncreasesSize() {
 		assertNotNull(stock, "stock not initialized");
 		int size = stock.size();
 		stock.addBoot(ArmorFactory.getRandomBoot());
@@ -39,7 +40,7 @@ class BootShopStockTest {
 
 
 	@Test
-	void testRemoveBoot() {
+	void testRemoveBootDecreasesSize() {
 		assertNotNull(stock, "stock not initialized");
 		Boot boot = ArmorFactory.getRandomBoot();
 		int size = stock.size();
@@ -54,7 +55,7 @@ class BootShopStockTest {
 	}
 
 	@Test
-	void testRemoveBoots() {
+	void testRemoveAllBoots() {
 		stock.getStock().forEach(b -> stock.removeBoot(b));
 		assertEquals(0, stock.getStock().size(), "Unsorted stock not the right size.");
 		assertEquals(0, stock.getStockByCondition().size(), "Condition sorted stock not the right size.");
@@ -73,6 +74,21 @@ class BootShopStockTest {
 		List<Boot> costStock = stock.getStockByCost();
 		assertTrue(costStock.get(0).getBasePrice() >= costStock.get(costStock.size() - 1).getBasePrice());
 
+	}
+	@Test
+	void testSize() {
+		BootShopStock sizeTest = new BootShopStock();
+		assertEquals(0, sizeTest.size());
+		sizeTest.addBoot(ArmorFactory.getRandomBoot());
+		assertEquals(1, sizeTest.size());
+		sizeTest = null;
+	}
+	
+	@Test
+	void testAddSameBoot() {
+		Boot boot = ArmorFactory.getRandomBoot();
+		assertTrue(stock.addBoot(boot), "Unable to add Unique boot.");
+		assertFalse(stock.addBoot(boot), "Able to add duplicate boot.");
 	}
 	
 	void buildStock() {
