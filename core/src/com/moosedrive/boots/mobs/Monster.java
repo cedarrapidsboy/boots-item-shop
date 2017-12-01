@@ -17,7 +17,7 @@ public abstract class Monster extends Creature implements IContainer {
 
 	public Monster(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, boolean friendly,
 			int baseDamage) {
-		super(name, numLegs, numArms, numHeads, maxHealth, baseDamage);
+		super(name, numLegs, numArms, numHeads, maxHealth, baseDamage, 5);
 		this.setFriendly(friendly);
 	}
 

@@ -13,7 +13,7 @@ public class HealthPotion extends Potion {
 
 	private int size;
 	private boolean full;
-	private final double encumbrance_multiplier = 0.0;
+	private final double encumbrance_multiplier = 1.0;
 	private final double healing_multiplier = 100.0;
 
 	public HealthPotion(int size) {
@@ -29,7 +29,6 @@ public class HealthPotion extends Potion {
 
 	@Override
 	public double getEncumbrance() {
-		// This likely returns zero
 		return (size + 1) * encumbrance_multiplier;
 	}
 

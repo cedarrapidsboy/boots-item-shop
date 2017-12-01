@@ -20,8 +20,8 @@ import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
 import com.moosedrive.boots.items.potions.Potion;
 import com.moosedrive.boots.mobs.Creature;
+import com.moosedrive.boots.mobs.CreatureFactory;
 import com.moosedrive.boots.mobs.Customer;
-import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
 import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
@@ -102,8 +102,8 @@ public class Populace {
 	}
 
 	private static void addCustomer(Set<Customer> custs) {
-		Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "", "",
-				100);
+		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "", "",
+				100, MathUtils.random(3,7));
 		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
 		cust.setMoney(MathUtils.random(10, 100));
 		custs.add(cust);
@@ -115,14 +115,6 @@ public class Populace {
 	 */
 	public int count() {
 		return denizens.getCustomers().size() + denizens.getMonsters().size();
-	}
-
-	public void addCustomerToWorld() {
-		Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "",
-				"from the machine", MathUtils.random(50, 255));
-		denizens.getCustomers().add(cust);
-		System.out.println("Added customer to populace: " + cust.name().getName());
-		System.out.println("Customers: " + denizens.getCustomers().size());
 	}
 
 	/**
