@@ -27,7 +27,9 @@ public class BootShopStock {
 	 * @return a copied list of the stock (unsorted)
 	 */
 	public List<Boot> getStock() {
-		return new ArrayList<Boot>(stock);
+		synchronized (this) {
+			return new ArrayList<Boot>(stock);
+		}
 	}
 
 	/**
@@ -38,7 +40,9 @@ public class BootShopStock {
 	 * @return A copied list of boots sorted
 	 */
 	public List<Boot> getStockByCost() {
-		return new ArrayList<Boot>(sortedByCost);
+		synchronized (this) {
+			return new ArrayList<Boot>(sortedByCost);
+		}
 	}
 
 	/**
@@ -49,7 +53,9 @@ public class BootShopStock {
 	 * @return A copied list of boots sorted
 	 */
 	public List<Boot> getStockByCondition() {
-		return new ArrayList<Boot>(sortedByCondition);
+		synchronized (this) {
+			return new ArrayList<Boot>(sortedByCondition);
+		}
 	}
 
 	/**
@@ -59,14 +65,15 @@ public class BootShopStock {
 	 * @return true if boot was added
 	 */
 	public boolean addBoot(Boot boot) {
-		if (stock.add(boot)) {
-			sortedByCost = stock.stream().sorted(new ArmorCostComparator().reversed()).collect(Collectors.toList());
-			sortedByCondition = stock.stream().sorted(new ArmorConditionComparator().reversed())
-					.collect(Collectors.toList());
-			return true;
+		synchronized (this) {
+			if (stock.add(boot)) {
+				sortedByCost = stock.stream().sorted(new ArmorCostComparator().reversed()).collect(Collectors.toList());
+				sortedByCondition = stock.stream().sorted(new ArmorConditionComparator().reversed())
+						.collect(Collectors.toList());
+				return true;
+			}
+			return false;
 		}
-		return false;
-
 	}
 
 	/**
@@ -76,19 +83,23 @@ public class BootShopStock {
 	 * @return true if boot was found and removed
 	 */
 	public boolean removeBoot(Boot boot) {
-		if (stock.remove(boot)) {
-			sortedByCost = stock.stream().sorted(new ArmorCostComparator().reversed()).collect(Collectors.toList());
-			sortedByCondition = stock.stream().sorted(new ArmorConditionComparator().reversed())
-					.collect(Collectors.toList());
-			return true;
+		synchronized (this) {
+			if (stock.remove(boot)) {
+				sortedByCost = stock.stream().sorted(new ArmorCostComparator().reversed()).collect(Collectors.toList());
+				sortedByCondition = stock.stream().sorted(new ArmorConditionComparator().reversed())
+						.collect(Collectors.toList());
+				return true;
+			}
+			return false;
 		}
-		return false;
 	}
 
 	/**
 	 * @return size of the stock
 	 */
 	public int size() {
-		return stock.size();
+		synchronized (this) {
+			return stock.size();
+		}
 	}
 }
