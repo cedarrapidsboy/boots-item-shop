@@ -17,46 +17,44 @@ class BootShopStockTest {
 	private BootShopStock stock;
 
 	@BeforeEach
-	void setUp() throws Exception {
+	void beforeAll() throws Exception {
 		stock = new BootShopStock();
+		buildStock();
 	}
 
 	@AfterEach
-	void tearDown() throws Exception {
+	void afterAll() throws Exception {
 		stock = null;
 	}
 
 	@Test
 	void testAddBoot() {
 		assertNotNull(stock, "stock not initialized");
+		int size = stock.size();
 		stock.addBoot(ArmorFactory.getRandomBoot());
-		assertEquals(stock.getStock().size(), 1);
-		assertEquals(stock.getStockByCondition().size(), 1);
-		assertEquals(stock.getStockByCost().size(), 1);
+		assertEquals(stock.getStock().size(), size + 1);
+		assertEquals(stock.getStockByCondition().size(), size + 1);
+		assertEquals(stock.getStockByCost().size(), size + 1);
 	}
 
-	@Test
-	void testAddBoots() {
-		buildStock();
-	}
 
 	@Test
 	void testRemoveBoot() {
 		assertNotNull(stock, "stock not initialized");
 		Boot boot = ArmorFactory.getRandomBoot();
+		int size = stock.size();
 		stock.addBoot(boot);
-		assertEquals(stock.getStock().size(), 1);
-		assertEquals(stock.getStockByCondition().size(), 1);
-		assertEquals(stock.getStockByCost().size(), 1);
+		assertEquals(stock.getStock().size(), size + 1);
+		assertEquals(stock.getStockByCondition().size(), size + 1);
+		assertEquals(stock.getStockByCost().size(), size + 1);
 		stock.removeBoot(boot);
-		assertEquals(stock.getStock().size(), 0);
-		assertEquals(stock.getStockByCondition().size(), 0);
-		assertEquals(stock.getStockByCost().size(), 0);
+		assertEquals(stock.getStock().size(), size);
+		assertEquals(stock.getStockByCondition().size(), size);
+		assertEquals(stock.getStockByCost().size(), size);
 	}
 
 	@Test
 	void testRemoveBoots() {
-		buildStock();
 		stock.getStock().forEach(b -> stock.removeBoot(b));
 		assertEquals(0, stock.getStock().size(), "Unsorted stock not the right size.");
 		assertEquals(0, stock.getStockByCondition().size(), "Condition sorted stock not the right size.");
@@ -65,7 +63,6 @@ class BootShopStockTest {
 
 	@Test
 	void testConditionSortOrder() {
-		buildStock();
 		List<Boot> condStock = stock.getStockByCondition();
 		assertTrue(condStock.get(0).getCondition() >= condStock.get(condStock.size() - 1).getCondition());
 
@@ -73,7 +70,6 @@ class BootShopStockTest {
 	
 	@Test
 	void testCostSortOrder() {
-		buildStock();
 		List<Boot> costStock = stock.getStockByCost();
 		assertTrue(costStock.get(0).getBasePrice() >= costStock.get(costStock.size() - 1).getBasePrice());
 
