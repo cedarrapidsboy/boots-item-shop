@@ -38,7 +38,7 @@ public class ArmorFactory {
 	public static Boot getRandomBoot() {
 		int randDurability = MathUtils.random(10, 20);
 		int randArmor = MathUtils.random(1, 5);
-		double randEncumbrance = MathUtils.random(0.1F, 1.0F);
+		double randEncumbrance = randArmor * 2;
 		return new Boot(randArmor, randEncumbrance, randDurability, randDurability);
 	}
 }

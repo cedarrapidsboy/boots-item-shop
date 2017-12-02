@@ -67,7 +67,6 @@ public class BootShop extends Shop {
 
 	public void addBoot() {
 		stock.addBoot(ArmorFactory.getRandomBoot());
-		System.out.println("Boot stock: " + count());
 
 	}
 

@@ -22,9 +22,9 @@ public class CreatureFactory {
 	 * @return
 	 */
 	public static Customer getHuman(String title, String firstName, String lastName, String additionalName,
-			int health) {
+			int health, int strength) {
 		MobName humanName = new MobName(title, lastName, firstName, additionalName, MobConstants.MOB_TYPE_HUMAN);
-		return new Customer(humanName, 2, 2, 1, health);
+		return new Customer(humanName, 2, 2, 1, health, strength);
 	}
 
 }

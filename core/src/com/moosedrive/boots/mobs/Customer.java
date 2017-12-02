@@ -23,12 +23,17 @@ import com.moosedrive.boots.items.potions.HealthPotion;
  */
 public class Customer extends Creature {
 
+	@Override
+	public double getEncumbrance() {
+		return super.getEncumbrance() + equippedArmor.stream().mapToDouble(IArmorItem::getEncumbrance).sum();
+	}
+
 	private final static int BASE_DMG = 10;
 
 	private List<IArmorItem> equippedArmor;
 
-	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
-		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG);
+	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int strength) {
+		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG, strength);
 		equippedArmor = new ArrayList<IArmorItem>();
 	}
 
@@ -110,25 +115,25 @@ public class Customer extends Creature {
 			newHealth = 0;
 		}
 		setCurHealth(newHealth);
-		
-		//damage boots
+
+		// damage boots
 		if (getEquippedBoots().size() > 0) {
-		ArrayList<Boot> boots = new ArrayList<Boot>(getEquippedBoots());
-		Boot aBoot = null;
-		if (boots.size() > 0) {
-			aBoot = boots.get(MathUtils.random(0,boots.size()-1));
-		}
-		if (aBoot != null) {
-			aBoot.setCondition(aBoot.getCondition() - 1);
-			if (aBoot.isBroken()) {
-				equippedArmor.remove(aBoot);
+			ArrayList<Boot> boots = new ArrayList<Boot>(getEquippedBoots());
+			Boot aBoot = null;
+			if (boots.size() > 0) {
+				aBoot = boots.get(MathUtils.random(0, boots.size() - 1));
+			}
+			if (aBoot != null) {
+				aBoot.setCondition(aBoot.getCondition() - 1);
+				if (aBoot.isBroken()) {
+					equippedArmor.remove(aBoot);
+				}
 			}
 		}
-		}
-		
+
 		return newDamage;
 	}
-	
+
 	public int bootsNeeded() {
 		return getNumLegs() - getEquippedBoots().size();
 	}
