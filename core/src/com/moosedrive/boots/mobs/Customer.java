@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.armor.IArmorItem;
 import com.moosedrive.boots.items.potions.HealthPotion;
+import com.moosedrive.boots.world.WorldTile;
 
 /**
  * Represents a customer of the item shop. A customer will have funds, an
@@ -32,8 +33,8 @@ public class Customer extends Creature {
 
 	private List<IArmorItem> equippedArmor;
 
-	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int strength) {
-		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG, strength);
+	public Customer(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int strength, WorldTile loc) {
+		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG, strength, loc);
 		equippedArmor = new ArrayList<IArmorItem>();
 	}
 

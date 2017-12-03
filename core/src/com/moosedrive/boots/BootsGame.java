@@ -45,7 +45,7 @@ public class BootsGame extends ApplicationAdapter {
 			NameUtils.initializeNames();
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
-			populace = Populace.getInstance();
+			populace = Populace.getInstance(World.getOverworld());
 			skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 			stage = new Stage();
 			Gdx.input.setInputProcessor(stage);

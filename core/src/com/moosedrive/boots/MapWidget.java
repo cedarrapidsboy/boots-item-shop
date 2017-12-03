@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.World;
 import com.moosedrive.boots.world.types.Cube;
 import com.moosedrive.boots.world.types.Layout;
@@ -14,10 +15,11 @@ import com.moosedrive.boots.world.types.Point;
 
 public class MapWidget extends Actor {
 	
-	public static final int TILE_SIZE = 10;
+	public static final int TILE_SIZE = 15;
 
 	ShapeRenderer shapeRenderer;
 	World world;
+	Populace pop;
 
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
@@ -30,12 +32,59 @@ public class MapWidget extends Actor {
 		shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
 		shapeRenderer.translate(getX(), getY(), 0);
+		
+		//List<WorldTile> blanks = pop.tilesWithoutCreatures(world.getTiles());
+		//List<WorldTile> custs = pop.tilesWithCustomers(world.getTiles());
+		//List<WorldTile> monsts = pop.tilesWithMonsters(world.getTiles());
+		
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(1, 1, 0, 1);
-
+		
 		world.getTiles().forEach(t -> {
 		        if (t != null) {
 		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getCube());
+				float[] polypoints = new float[14];
+				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
+				for (int i = 0; i < 6; i++) {
+					polypoints[i*2] = (float)tilepoints[i].x;
+					polypoints[i*2+1] = (float)tilepoints[i].y;
+				}
+				polypoints[12]=(float)tilepoints[0].x;
+				polypoints[13]=(float)tilepoints[0].y;
+				shapeRenderer.polygon(polypoints);
+		        }
+		    }
+		);
+
+		shapeRenderer.end();
+		
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(1, 0, 0, 1);
+		
+		pop.getDenizens().getMonsters().forEach(t -> {
+		        if (t != null) {
+		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getLocation().getCube());
+				float[] polypoints = new float[14];
+				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
+				for (int i = 0; i < 6; i++) {
+					polypoints[i*2] = (float)tilepoints[i].x;
+					polypoints[i*2+1] = (float)tilepoints[i].y;
+				}
+				polypoints[12]=(float)tilepoints[0].x;
+				polypoints[13]=(float)tilepoints[0].y;
+				shapeRenderer.polygon(polypoints);
+		        }
+		    }
+		);
+
+		shapeRenderer.end();
+
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(0, 0, 1, 1);
+		
+		pop.getDenizens().getCustomers().forEach(t -> {
+		        if (t != null) {
+		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getLocation().getCube());
 				float[] polypoints = new float[14];
 				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
 				for (int i = 0; i < 6; i++) {
@@ -58,6 +107,7 @@ public class MapWidget extends Actor {
 	public MapWidget(World world) {
 		this.shapeRenderer = new ShapeRenderer();
 		this.world = world;
+		this.pop = Populace.getInstance(world);
 	}
 	
 	Point hex_to_pixel(Layout layout, Cube h) {
