@@ -13,6 +13,8 @@ import com.moosedrive.boots.world.types.Orientation;
 import com.moosedrive.boots.world.types.Point;
 
 public class MapWidget extends Actor {
+	
+	public static final int TILE_SIZE = 10;
 
 	ShapeRenderer shapeRenderer;
 	World world;
@@ -23,7 +25,8 @@ public class MapWidget extends Actor {
 		batch.end();
 		float originX = getWidth()/2;
 		float originY = getHeight()/2;
-		Layout layout = new Layout(Orientation.layout_pointy, new Point(10,10), new Point(originX, originY));
+		
+		Layout layout = new Layout(Orientation.layout_pointy, new Point(TILE_SIZE,TILE_SIZE), new Point(originX, originY));
 		shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
 		shapeRenderer.translate(getX(), getY(), 0);

@@ -10,6 +10,7 @@ public class DesktopLauncher {
                 config.title = "Boots Item Shop";
                 config.width = 1280;
                 config.height = 720;
+                config.samples = 8;
 		new LwjglApplication(new BootsGame(), config);
 	}
 }
