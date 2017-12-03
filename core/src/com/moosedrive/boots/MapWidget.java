@@ -32,11 +32,7 @@ public class MapWidget extends Actor {
 		shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
 		shapeRenderer.translate(getX(), getY(), 0);
-		
-		//List<WorldTile> blanks = pop.tilesWithoutCreatures(world.getTiles());
-		//List<WorldTile> custs = pop.tilesWithCustomers(world.getTiles());
-		//List<WorldTile> monsts = pop.tilesWithMonsters(world.getTiles());
-		
+				
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(1, 1, 0, 1);
 		
