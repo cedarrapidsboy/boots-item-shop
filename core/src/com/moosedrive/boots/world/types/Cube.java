@@ -2,26 +2,26 @@ package com.moosedrive.boots.world.types;
 
 public class Cube {
 
-	private final int x;
-	private final int y;
-	private final int z;
+	private final float x;
+	private final float y;
+	private final float z;
 
-	public Cube(int x, int y, int z) {
+	public Cube(float x, float y, float z) {
 		super();
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 
-	public int getX() {
+	public float getX() {
 		return x;
 	}
 
-	public int getY() {
+	public float getY() {
 		return y;
 	}
 
-	public int getZ() {
+	public float getZ() {
 		return z;
 	}
 
