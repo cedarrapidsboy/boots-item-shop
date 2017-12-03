@@ -7,10 +7,15 @@ public class Cube {
 	private final float z;
 
 	public Cube(float x, float y, float z) {
-		super();
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	public Cube(float q, float r) {
+		this.x = q;
+		this.y = -q - r;
+		this.z = r;
 	}
 
 	public float getX() {
@@ -35,6 +40,17 @@ public class Cube {
 
 	public static Cube multiply(Cube a, int k) {
 		return new Cube(a.getX() * k, a.getY() * k, a.getZ() * k);
+	}
+
+	public float getQ() {
+		return this.x;
+	}
+
+	public float getR() {
+		return this.z;
+	}
+	public float getS() {
+		return this.y;
 	}
 
 }
