@@ -35,6 +35,7 @@ public class NameUtils {
 	public static void initializeNames() throws IOException {
 		System.out.println("Initializing name cache...");
 		firstNameMap.clear();
+		lastNameMap.clear();
 		long nameCount = 0;
 		FileHandle namesDir = Gdx.files.internal("data/names");
 		FileHandle[] files = namesDir.list((File dir, String name) -> name.matches("names_[0-9][0-9]"));
@@ -58,7 +59,7 @@ public class NameUtils {
 			Integer index = Integer.valueOf(file.name().split("_")[1]);
 			reader = new BufferedReader(file.reader());
 			List<String> names = reader.lines().map(String::trim).collect(Collectors.toList());
-			firstNameMap.put(index, names);
+			lastNameMap.put(index, names);
 			nameCount += names.size();
 		}
 		System.out.println("...FINISHED initializing name cache. (" + nameCount + " names loaded)");
@@ -87,7 +88,7 @@ public class NameUtils {
 			List<String> names = firstNameMap.get(index);
 			name = names.get(MathUtils.random(names.size() - 1));
 		}
-		return name;
+		return StringUtils.toTitleCase(name);
 	}
 
 	/**
@@ -112,7 +113,7 @@ public class NameUtils {
 			List<String> names = lastNameMap.get(index);
 			name = names.get(MathUtils.random(names.size() - 1));
 		}
-		return name;
+		return StringUtils.toTitleCase(name);
 	}
 
 	public static MobName getSimpleName(String name, int mobType) {

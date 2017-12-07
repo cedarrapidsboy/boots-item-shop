@@ -118,7 +118,7 @@ public class BootsGame extends ApplicationAdapter {
 	private void updateText() {
 
 		worldText.clear();
-		worldText.add(new Label("Name", skin)).getActor().setFontScale(0.5F);
+		worldText.add(new Label("Name", skin)).getActor().setFontScale(0.75F);
 		worldText.add(new Label("Health", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
 		worldText.add(new Label("DMG", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
 		worldText.add(new Label("AC", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);

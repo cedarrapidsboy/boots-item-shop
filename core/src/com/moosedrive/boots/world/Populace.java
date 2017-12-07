@@ -109,7 +109,7 @@ public class Populace {
 	}
 
 	private void addCustomer(Set<Customer> custs, WorldTile loc) {
-		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "", "",
+		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), NameUtils.getRandomLastName(MobConstants.MOB_TYPE_HUMAN), "",
 				100, MathUtils.random(3,7), loc);
 		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
 		cust.setMoney(MathUtils.random(10, 100));
