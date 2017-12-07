@@ -10,6 +10,7 @@ import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.potions.HealthPotion;
 import com.moosedrive.boots.items.potions.Potion;
 import com.moosedrive.boots.utils.NameUtils;
+import com.moosedrive.boots.world.WorldTile;
 
 /**
  *
@@ -18,12 +19,12 @@ import com.moosedrive.boots.utils.NameUtils;
 public class Spider extends Monster {
 	private final static int BASE_DMG = 15;
 
-	private Spider(MobName name, int numLegs, int numArms, int numHeads, int maxHealth) {
-		super(name, numLegs, numArms, numHeads, maxHealth, false, BASE_DMG);
+	private Spider(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, WorldTile loc) {
+		super(name, numLegs, numArms, numHeads, maxHealth, false, BASE_DMG, loc);
 	}
 
-	public static Spider getSpider(MobName name, int maxHealth) {
-		return new Spider(name, 8, 0, 1, maxHealth);
+	public static Spider getSpider(MobName name, int maxHealth, WorldTile loc) {
+		return new Spider(name, 8, 0, 1, maxHealth, loc);
 	}
 
 	@Override
@@ -41,10 +42,10 @@ public class Spider extends Monster {
 		return damage;
 	}
 
-	public static Spider getRandomSpider() {
+	public static Spider getRandomSpider(WorldTile loc) {
 		// Add some spiders per customer
 		Spider spider = getSpider(NameUtils.getSimpleName("Icky Spider", MobConstants.MOB_TYPE_SPIDER),
-				MathUtils.random(10, 30));
+				MathUtils.random(10, 30),loc);
 		if (MathUtils.random(1, 6) == 1) {
 			// 1:6 chance for a random boot
 			spider.addItem(ArmorFactory.getRandomBoot());

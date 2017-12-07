@@ -11,6 +11,7 @@ import java.util.List;
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.items.IItem;
 import com.moosedrive.boots.items.containers.IContainer;
+import com.moosedrive.boots.world.WorldTile;
 
 /**
  *
@@ -27,6 +28,20 @@ public abstract class Creature implements IContainer {
 	protected int numHeads;
 	protected final int maxHeads;
 	protected long curHealth;
+	private int strength;
+	private WorldTile location;
+	
+	public WorldTile getLocation() {
+		return location;
+	}
+
+	public void setLocation(WorldTile location) {
+		this.location = location;
+	}
+
+	public final static int CAPACITY_STRENGTH_MULTIPLIER = 10;
+	
+	
 
 	protected void setCurHealth(long curHealth) {
 		this.curHealth = curHealth;
@@ -37,7 +52,7 @@ public abstract class Creature implements IContainer {
 	protected List<IItem> inventory;
 	private int baseDamage;
 
-	public Creature(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int baseDamage) {
+	public Creature(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int baseDamage, int strength, WorldTile loc) {
 		this.maxLegs = numLegs;
 		this.numLegs = this.maxLegs;
 		this.maxArms = numArms;
@@ -51,6 +66,8 @@ public abstract class Creature implements IContainer {
 		this.money = 0;
 		this.inventory = new ArrayList<IItem>();
 		this.baseDamage = baseDamage;
+		this.strength = strength;
+		this.location = loc;
 	}
 
 	public MobName name() {
@@ -195,5 +212,27 @@ public abstract class Creature implements IContainer {
 	 * @return damage actually applied
 	 */
 	public abstract int applyDamage(int damage);
+
+	public int getStrength() {
+		return strength;
+	}
+
+	public void setStrength(int strength) {
+		this.strength = strength;
+	}
+	
+	public int getCapacity() {
+		return this.strength * CAPACITY_STRENGTH_MULTIPLIER;
+	}
+	
+	/**
+	 * Sum the encumbrance of items.
+	 * Should be extended for mob types that have added equipped inventory.
+	 * @return total encumbrance of contained items
+	 */
+	public double getEncumbrance() {
+		return getContents().stream().mapToDouble(IItem::getEncumbrance).sum();
+		
+	}
 
 }

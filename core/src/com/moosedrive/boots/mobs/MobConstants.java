@@ -11,8 +11,8 @@ package com.moosedrive.boots.mobs;
  */
 public final class MobConstants {
 
-	public static final int MOB_TYPE_HUMAN = 0;
-	public static final int MOB_TYPE_ELF = 1;
+	public static final int MOB_TYPE_ELF = 0;
+	public static final int MOB_TYPE_HUMAN = 1;
 	public static final int MOB_TYPE_OGRE = 2;
 	// Creatures
 	public static final int MOB_TYPE_SPIDER = 500;

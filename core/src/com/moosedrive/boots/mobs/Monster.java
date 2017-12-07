@@ -6,6 +6,7 @@
 package com.moosedrive.boots.mobs;
 
 import com.moosedrive.boots.items.containers.IContainer;
+import com.moosedrive.boots.world.WorldTile;
 
 /**
  *
@@ -16,8 +17,8 @@ public abstract class Monster extends Creature implements IContainer {
 	private boolean isFriendly;
 
 	public Monster(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, boolean friendly,
-			int baseDamage) {
-		super(name, numLegs, numArms, numHeads, maxHealth, baseDamage);
+			int baseDamage, WorldTile loc) {
+		super(name, numLegs, numArms, numHeads, maxHealth, baseDamage, 5, loc);
 		this.setFriendly(friendly);
 	}
 

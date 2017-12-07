@@ -7,6 +7,7 @@ package com.moosedrive.boots.world;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,8 +21,8 @@ import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
 import com.moosedrive.boots.items.potions.Potion;
 import com.moosedrive.boots.mobs.Creature;
+import com.moosedrive.boots.mobs.CreatureFactory;
 import com.moosedrive.boots.mobs.Customer;
-import com.moosedrive.boots.mobs.CustomerFactory;
 import com.moosedrive.boots.mobs.MobConstants;
 import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
@@ -34,8 +35,13 @@ import com.moosedrive.boots.world.shops.BootShop;
  */
 public class Populace {
 
-	private static Populace pop;
 	private Denizens denizens;
+	public Denizens getDenizens() {
+		return denizens;
+	}
+
+	private World world;
+	private final static HashMap<World, Populace> pop = new HashMap<World, Populace>();
 	private final List<List<Creature>> combatList;
 	private static final int MIN_CUSTOMERS = 5;
 	private static final int SPAWN_MILLIS = 1000;
@@ -63,18 +69,19 @@ public class Populace {
 	private long spiderWaitingToSpawn = 0;
 	private long customersWaitingToSpawn = 0;
 
-	private Populace() {
+	private Populace(World world) {
 		denizens = new Denizens();
 		denizens.setCustomers(new HashSet<Customer>());
 		denizens.setMonsters(new HashSet<Creature>());
 		combatList = new ArrayList<List<Creature>>();
+		this.world = world;
 	}
 
-	public static Populace getInstance() {
-		if (pop == null) {
-			pop = new Populace();
+	public static Populace getInstance(World world) {
+		if (pop.get(world) == null) {
+			pop.put(world, new Populace(world));
 		}
-		return pop;
+		return pop.get(world);
 	}
 
 	public void populateWorld() {
@@ -89,21 +96,21 @@ public class Populace {
 	 * @param custs
 	 * @param monsts
 	 */
-	public static void addCustomerAndSpiders(Set<Customer> custs, Set<Creature> monsts) {
-		addCustomer(custs);
+	public void addCustomerAndSpiders(Set<Customer> custs, Set<Creature> monsts) {
+		addCustomer(custs, world.getRandomTile());
 		for (int x = 0; x < 10; x++) {
-			addSpider(monsts);
+			addSpider(monsts, world.getRandomTile());
 		}
 	}
 
-	private static void addSpider(Set<Creature> monsts) {
-		Spider spider = Spider.getRandomSpider();
+	private void addSpider(Set<Creature> monsts, WorldTile loc) {
+		Spider spider = Spider.getRandomSpider(loc);
 		monsts.add(spider);
 	}
 
-	private static void addCustomer(Set<Customer> custs) {
-		Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "", "",
-				100);
+	private void addCustomer(Set<Customer> custs, WorldTile loc) {
+		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), NameUtils.getRandomLastName(MobConstants.MOB_TYPE_HUMAN), "",
+				100, MathUtils.random(3,7), loc);
 		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
 		cust.setMoney(MathUtils.random(10, 100));
 		custs.add(cust);
@@ -115,14 +122,6 @@ public class Populace {
 	 */
 	public int count() {
 		return denizens.getCustomers().size() + denizens.getMonsters().size();
-	}
-
-	public void addCustomerToWorld() {
-		Customer cust = CustomerFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), "",
-				"from the machine", MathUtils.random(50, 255));
-		denizens.getCustomers().add(cust);
-		System.out.println("Added customer to populace: " + cust.name().getName());
-		System.out.println("Customers: " + denizens.getCustomers().size());
 	}
 
 	/**
@@ -172,11 +171,11 @@ public class Populace {
 	public void worldTick() {
 		long currentMillis = TimeUtils.millis();
 		while (customersWaitingToSpawn > 0) {
-			addCustomer(denizens.getCustomers());
+			addCustomer(denizens.getCustomers(), world.getRandomTile());
 			customersWaitingToSpawn--;
 		}
 		while (spiderWaitingToSpawn > 0) {
-			addSpider(denizens.getMonsters());
+			addSpider(denizens.getMonsters(), world.getRandomTile());
 			spiderWaitingToSpawn--;
 		}
 		// Spawns and de-spawns
@@ -223,8 +222,7 @@ public class Populace {
 							customer.setMoney(customer.getMoney() + weakest.getMoney());
 							// customer heals if possible and equips new stuff
 							if (customer.heal() > 0) {
-								System.out.println(
-										"+++" + customer.name().getName() + " drinks a potion.");
+								System.out.println("+++" + customer.name().getName() + " drinks a potion.");
 							}
 							// Go buy/sell some boots (instantaneously)
 							processPurchases(customer);
@@ -263,7 +261,7 @@ public class Populace {
 				;
 			}
 			combatList.removeAll(monsterParties);
-			
+
 			// pickfights
 			List<Creature> notFighting = denizens.getMonsters().parallelStream().filter(c -> isFighting(c).size() == 0)
 					.collect(Collectors.toList());
@@ -278,12 +276,42 @@ public class Populace {
 		}
 		return deltaMillis;
 	}
+	
+	public List<Creature> creaturesOnTile(WorldTile tile){
+		ArrayList<Creature> list = new ArrayList<Creature>();
+		list.addAll(customersOnTile(tile));
+		list.addAll(monstersOnTile(tile));
+		return list;
+	}
+	public List<Creature> customersOnTile(WorldTile tile){
+		return denizens.getCustomers().stream().filter(c -> (c.getLocation() == tile)).collect(Collectors.toList());
+	}
+	public List<Creature> monstersOnTile(WorldTile tile){
+		return denizens.getMonsters().stream().filter(c -> (c.getLocation() == tile)).collect(Collectors.toList());
+	}
+	
+	public List<WorldTile> tilesWithCreatures(List<WorldTile> tiles){
+		ArrayList<WorldTile> list = new ArrayList<WorldTile>();
+		list.addAll(tilesWithCustomers(tiles));
+		list.addAll(tilesWithMonsters(tiles));
+		return list;
+	}
+	public List<WorldTile> tilesWithoutCreatures(List<WorldTile> tiles){
+		return tiles.stream().filter(t -> !tilesWithCreatures(tiles).contains(t)).collect(Collectors.toList());
+	}
+	public List<WorldTile> tilesWithCustomers(List<WorldTile> tiles){
+		return denizens.getCustomers().stream().filter(c -> (tiles.contains(c.getLocation()))).map(Creature::getLocation).collect(Collectors.toList());
+	}
+	public List<WorldTile> tilesWithMonsters(List<WorldTile> tiles){
+		return denizens.getMonsters().stream().filter(c -> (tiles.contains(c.getLocation()))).map(Creature::getLocation).collect(Collectors.toList());
+	}
+
 
 	private void processPurchases(Customer customer) {
 		ArrayList<Boot> sortedBoots = new ArrayList<Boot>(customer.getContents().stream().filter(i -> i instanceof Boot)
 				.map(b -> (Boot) b).sorted(Comparator.comparingInt(b -> BootShop.getBootCost((Boot) b)).reversed())
 				.collect(Collectors.toList()));
-		// Keep a spare set of boots
+		// sell boots. Keep a spare set of boots
 		BootShop shop = BootShop.getInstance();
 		if (sortedBoots.size() > 2) {
 			List<Boot> bootsToSell = sortedBoots.subList(2, sortedBoots.size());
@@ -297,6 +325,7 @@ public class Populace {
 			});
 		}
 
+		// buy boots
 		for (int i = 0; i < customer.bootsNeeded(); i++) {
 			List<Boot> browseBoots = shop.viewBootsByCost();
 			long funds = customer.getMoney();
@@ -326,10 +355,10 @@ public class Populace {
 			if (denizens.getCustomers().size() < MIN_CUSTOMERS) {
 				addCustomerAndSpiders(denizens.getCustomers(), denizens.getMonsters());
 			}
-			denizens.getCustomers().removeAll(
-					denizens.getCustomers().parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
-			denizens.getMonsters().removeAll(
-					denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			denizens.getCustomers().removeAll(denizens.getCustomers().parallelStream()
+					.filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
+			denizens.getMonsters().removeAll(denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0)
+					.collect(Collectors.toList()));
 			if (MathUtils.random(1, 15) == 1) {
 				// 1:15 chance for a spider rush
 				denizens.getCustomers().forEach(c -> {

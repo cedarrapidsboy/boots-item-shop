@@ -21,6 +21,7 @@ import com.moosedrive.boots.items.armor.ArmorFactory;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.Populace;
+import com.moosedrive.boots.world.World;
 import com.moosedrive.boots.world.shops.BootShop;
 
 public class BootsGame extends ApplicationAdapter {
@@ -44,7 +45,7 @@ public class BootsGame extends ApplicationAdapter {
 			NameUtils.initializeNames();
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
-			populace = Populace.getInstance();
+			populace = Populace.getInstance(World.getOverworld());
 			skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 			stage = new Stage();
 			Gdx.input.setInputProcessor(stage);
@@ -55,6 +56,7 @@ public class BootsGame extends ApplicationAdapter {
 			worldTextScroller.setFadeScrollBars(false);
 			shopText = new Label("shop-info", skin, "status");
 			shopText.setAlignment(Align.topLeft);
+			shopText.setFontScale(1.0F);
 
 			table = new Table();
 			table.setFillParent(true);
@@ -63,10 +65,10 @@ public class BootsGame extends ApplicationAdapter {
 			// TODO remove debugging line
 			table.setDebug(true);
 
-			table.add(worldTextScroller).expand().fill().align(Align.topLeft);
+			table.add(new MapWidget(World.getOverworld())).expand().fill().align(Align.topLeft);
 			table.add();
 			table.row();
-			table.add();
+			table.add(worldTextScroller).maxHeight(200).expandX().fill().align(Align.topLeft);
 			table.add(shopText).prefWidth(200).prefHeight(200).minHeight(200).minWidth(200);
 
 			// TESTING
@@ -116,13 +118,13 @@ public class BootsGame extends ApplicationAdapter {
 	private void updateText() {
 
 		worldText.clear();
-		worldText.add(new Label("Name", skin));
-		worldText.add(new Label("Health", skin)).padLeft(10.0F).padRight(10.0F);
-		worldText.add(new Label("DMG", skin)).padLeft(10.0F).padRight(10.0F);
-		worldText.add(new Label("AC", skin)).padLeft(10.0F).padRight(10.0F);
-		worldText.add(new Label("Gold", skin)).padLeft(10.0F).padRight(10.0F);
-		worldText.add(new Label("Inventory", skin)).padLeft(10.0F).padRight(10.0F);
-		worldText.add(new Label("Action", skin)).left();
+		worldText.add(new Label("Name", skin)).getActor().setFontScale(0.75F);
+		worldText.add(new Label("Health", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+		worldText.add(new Label("DMG", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+		worldText.add(new Label("AC", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+		worldText.add(new Label("Gold", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+		worldText.add(new Label("Inventory", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+		worldText.add(new Label("Action", skin)).left().getActor().setFontScale(0.5F);
 		worldText.row();
 		List<String[]> worldRecords = populace.worldStatus();
 
@@ -130,11 +132,11 @@ public class BootsGame extends ApplicationAdapter {
 
 			for (int i = 0; i < s.length; i++) {
 				if (i == s.length - 1) {
-					worldText.add(new Label(s[i], skin)).expandX().left();
+					worldText.add(new Label(s[i], skin)).expandX().left().getActor().setFontScale(0.5F);
 				} else if (i == 0) {
-					worldText.add(new Label(s[i], skin)).right();
+					worldText.add(new Label(s[i], skin)).right().getActor().setFontScale(0.5F);
 				} else {
-					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F);
+					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
 				}
 
 			}
