@@ -1,11 +1,13 @@
 package com.moosedrive.boots;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.moosedrive.boots.mobs.Creature;
 import com.moosedrive.boots.world.Populace;
 import com.moosedrive.boots.world.World;
 import com.moosedrive.boots.world.types.Cube;
@@ -34,8 +36,7 @@ public class MapWidget extends Actor {
 		shapeRenderer.translate(getX(), getY(), 0);
 				
 		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(1, 1, 0, 1);
-		
+		shapeRenderer.setColor(1, 1, 0, 1);		
 		world.getTiles().forEach(t -> {
 		        if (t != null) {
 		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getCube());
@@ -51,53 +52,34 @@ public class MapWidget extends Actor {
 		        }
 		    }
 		);
-
 		shapeRenderer.end();
 		
-		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(1, 0, 0, 1);
-		
-		pop.getDenizens().getMonsters().forEach(t -> {
-		        if (t != null) {
-		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getLocation().getCube());
-				float[] polypoints = new float[14];
-				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
-				for (int i = 0; i < 6; i++) {
-					polypoints[i*2] = (float)tilepoints[i].x;
-					polypoints[i*2+1] = (float)tilepoints[i].y;
-				}
-				polypoints[12]=(float)tilepoints[0].x;
-				polypoints[13]=(float)tilepoints[0].y;
-				shapeRenderer.polygon(polypoints);
-		        }
-		    }
-		);
-
-		shapeRenderer.end();
-
-		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(0, 0, 1, 1);
-		
-		pop.getDenizens().getCustomers().forEach(t -> {
-		        if (t != null) {
-		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getLocation().getCube());
-				float[] polypoints = new float[14];
-				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
-				for (int i = 0; i < 6; i++) {
-					polypoints[i*2] = (float)tilepoints[i].x;
-					polypoints[i*2+1] = (float)tilepoints[i].y;
-				}
-				polypoints[12]=(float)tilepoints[0].x;
-				polypoints[13]=(float)tilepoints[0].y;
-				shapeRenderer.polygon(polypoints);
-		        }
-		    }
-		);
-
-		shapeRenderer.end();
-
-
+		drawCreatures(pop.getDenizens().getMonsters(), shapeRenderer, layout, 1, 0, 0);
+		drawCreatures(pop.getDenizens().getCustomers(), shapeRenderer, layout, 0, 0, 1);
 		batch.begin();
+	}
+
+	private void drawCreatures(Collection<? extends Creature> creatures, ShapeRenderer renderer, Layout layout, int r, int g, int b) {
+		renderer.begin(ShapeType.Line);
+		renderer.setColor(r, g, b, 1);
+		
+		creatures.forEach(t -> {
+		        if (t != null) {
+		        ArrayList<Point> tilePointsList = polygon_corners(layout, t.getLocation().getCube());
+				float[] polypoints = new float[14];
+				Point[] tilepoints = tilePointsList.toArray(new Point[tilePointsList.size()]);
+				for (int i = 0; i < 6; i++) {
+					polypoints[i*2] = (float)tilepoints[i].x;
+					polypoints[i*2+1] = (float)tilepoints[i].y;
+				}
+				polypoints[12]=(float)tilepoints[0].x;
+				polypoints[13]=(float)tilepoints[0].y;
+				renderer.polygon(polypoints);
+		        }
+		    }
+		);
+
+		renderer.end();
 	}
 
 	public MapWidget(World world) {
