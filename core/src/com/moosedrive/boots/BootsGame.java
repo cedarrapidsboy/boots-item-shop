@@ -9,7 +9,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -46,10 +50,23 @@ public class BootsGame extends ApplicationAdapter {
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
 			populace = Populace.getInstance(World.getOverworld());
-			skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+			
+			//TTF Font code
+			FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Dalelands Uncial.ttf"));
+			FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+			parameter.size = 12;
+			BitmapFont font12 = generator.generateFont(parameter); // font size 12 pixels
+			generator.dispose(); // don't forget to dispose to avoid memory leaks!
+			
+			skin = new Skin();
+			skin.add("myFont12",font12);
+			
+			skin.addRegions(new TextureAtlas(Gdx.files.internal("ui/uiSkin.atlas")));
+			//"font12" needs to be referenced in skin file
+			skin.load(Gdx.files.internal("ui/uiSkin.json"));
+		
 			stage = new Stage();
 			Gdx.input.setInputProcessor(stage);
-
 			worldText = new Table(skin);
 			worldTextScroller = new ScrollPane(worldText, skin);
 			worldText.align(Align.topLeft);
@@ -116,15 +133,15 @@ public class BootsGame extends ApplicationAdapter {
 	}
 
 	private void updateText() {
-
+		float fontScale = 1.0F;
 		worldText.clear();
-		worldText.add(new Label("Name", skin)).getActor().setFontScale(0.75F);
-		worldText.add(new Label("Health", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
-		worldText.add(new Label("DMG", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
-		worldText.add(new Label("AC", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
-		worldText.add(new Label("Gold", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
-		worldText.add(new Label("Inventory", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
-		worldText.add(new Label("Action", skin)).left().getActor().setFontScale(0.5F);
+		worldText.add(new Label("Name", skin)).getActor().setFontScale(fontScale);
+		worldText.add(new Label("Health", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(1.0F);
+		worldText.add(new Label("DMG", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(1.0F);
+		worldText.add(new Label("AC", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(1.0F);
+		worldText.add(new Label("Gold", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(1.0F);
+		worldText.add(new Label("Inventory", skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(1.0F);
+		worldText.add(new Label("Action", skin)).left().getActor().setFontScale(1.0F);
 		worldText.row();
 		List<String[]> worldRecords = populace.worldStatus();
 
@@ -132,11 +149,11 @@ public class BootsGame extends ApplicationAdapter {
 
 			for (int i = 0; i < s.length; i++) {
 				if (i == s.length - 1) {
-					worldText.add(new Label(s[i], skin)).expandX().left().getActor().setFontScale(0.5F);
+					worldText.add(new Label(s[i], skin)).expandX().left().getActor().setFontScale(fontScale);
 				} else if (i == 0) {
-					worldText.add(new Label(s[i], skin)).right().getActor().setFontScale(0.5F);
+					worldText.add(new Label(s[i], skin)).right().getActor().setFontScale(fontScale);
 				} else {
-					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(0.5F);
+					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(fontScale);
 				}
 
 			}
