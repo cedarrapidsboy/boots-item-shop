@@ -384,15 +384,14 @@ public class Populace {
 				.collect(Collectors.toList()));
 		denizens.getMonsters().removeAll(denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0)
 				.collect(Collectors.toList()));
-		// TODO removed spider rush for movement processing
-		// if (MathUtils.random(1, 15) == 1) {
-		// // 1:15 chance for a spider rush
-		// denizens.getCustomers().forEach(c -> {
-		// for (int i = 0; i < 5; i++) {
-		// addSpider();
-		// }
-		// });
-		// }
+		if (MathUtils.random(1, 30) == 1) {
+			// 1:30 chance for a spider rush
+			denizens.getCustomers().forEach(c -> {
+				for (int i = 0; i < 2; i++) {
+					addSpider();
+				}
+			});
+		}
 
 	}
 
