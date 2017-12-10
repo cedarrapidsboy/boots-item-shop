@@ -23,6 +23,8 @@ import com.moosedrive.boots.world.WorldTile;
  * @author cedarrapidsboy
  */
 public class Customer extends Creature {
+	
+	public static int MOVEMENT_RANGE = 5;
 
 	@Override
 	public double getEncumbrance() {
@@ -37,6 +39,15 @@ public class Customer extends Creature {
 		super(name, numLegs, numArms, numHeads, maxHealth, BASE_DMG, strength, loc);
 		equippedArmor = new ArrayList<IArmorItem>();
 	}
+	
+	
+
+	@Override
+	public int getRange() {
+		return MOVEMENT_RANGE;
+	}
+
+
 
 	@Override
 	protected void adjustNumberOfLegs(int num) {

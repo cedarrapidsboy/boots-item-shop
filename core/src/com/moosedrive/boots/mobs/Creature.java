@@ -19,6 +19,11 @@ import com.moosedrive.boots.world.WorldTile;
  */
 public abstract class Creature implements IContainer {
 
+	public static final int STATUS_DEAD = -1;
+	public static final int STATUS_IDLE = 0;
+	public static final int STATUS_MOVING = 1;
+	public static final int STATUS_FIGHTING = 2;
+	public static final int RANGE_DEFAULT = 1;
 	protected MobName name;
 	protected final int mobType;
 	protected int numLegs;
@@ -30,25 +35,12 @@ public abstract class Creature implements IContainer {
 	protected long curHealth;
 	private int strength;
 	private WorldTile location;
-
-	public WorldTile getLocation() {
-		return location;
-	}
-
-	public void setLocation(WorldTile location) {
-		this.location = location;
-	}
-
-	public final static int CAPACITY_STRENGTH_MULTIPLIER = 10;
-
-	protected void setCurHealth(long curHealth) {
-		this.curHealth = curHealth;
-	}
-
+	private WorldTile destination;
 	protected final int maxHealth;
 	protected long money;
 	protected List<IItem> inventory;
 	private int baseDamage;
+	private int status;
 
 	public Creature(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int baseDamage, int strength,
 			WorldTile loc) {
@@ -67,6 +59,78 @@ public abstract class Creature implements IContainer {
 		this.baseDamage = baseDamage;
 		this.strength = strength;
 		this.location = loc;
+		this.destination = null;
+		this.status = 0;
+	}
+	
+	public int getRange() {
+		return RANGE_DEFAULT;
+	}
+
+	public WorldTile getLocation() {
+		return location;
+	}
+	
+	public void setDestination(WorldTile dest) {
+		this.destination = dest;
+		adjustStatus();
+	}
+	
+	public WorldTile getDestination() {
+		return this.destination;
+	}
+
+	public void setLocation(WorldTile location) {
+		this.location = location;
+		if (this.location == this.destination) {
+			this.destination = null;
+		}
+		adjustStatus();
+
+	}
+	public void setFighting() {
+		this.status = STATUS_FIGHTING;
+	}
+	public void setIdle() {
+		this.status = STATUS_IDLE;
+	}
+	public final static int CAPACITY_STRENGTH_MULTIPLIER = 10;
+
+	protected void setCurHealth(long curHealth) {
+		this.curHealth = curHealth;
+		if (this.curHealth <= 0) {
+			this.status = STATUS_DEAD;
+		}
+	}
+
+	private void adjustStatus() {
+		if (this.status != STATUS_DEAD && this.status != STATUS_FIGHTING) {
+			if (this.destination == null) {
+				this.status = STATUS_IDLE;
+			} else if (this.destination != this.getLocation()) {
+				this.status = STATUS_MOVING;
+			}
+		}
+	}
+
+	public boolean isIdle() {
+		adjustStatus();
+		return this.status == STATUS_IDLE;
+	}
+
+	public boolean isMoving() {
+		adjustStatus();
+		return this.status == STATUS_MOVING;
+	}
+
+	public boolean isFighting() {
+		adjustStatus();
+		return this.status == STATUS_FIGHTING;
+	}
+
+	public boolean isDead() {
+		adjustStatus();
+		return this.status == STATUS_DEAD;
 	}
 
 	public MobName name() {

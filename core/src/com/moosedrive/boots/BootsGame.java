@@ -50,21 +50,21 @@ public class BootsGame extends ApplicationAdapter {
 			batch = new SpriteBatch();
 			bootShop = BootShop.getInstance();
 			populace = Populace.getInstance(World.getOverworld());
-			
-			//TTF Font code
+
+			// TTF Font code
 			FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Dalelands Uncial.ttf"));
 			FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 			parameter.size = 12;
 			BitmapFont font12 = generator.generateFont(parameter); // font size 12 pixels
 			generator.dispose(); // don't forget to dispose to avoid memory leaks!
-			
+
 			skin = new Skin();
-			skin.add("myFont12",font12);
-			
+			skin.add("myFont12", font12);
+
 			skin.addRegions(new TextureAtlas(Gdx.files.internal("ui/uiSkin.atlas")));
-			//"font12" needs to be referenced in skin file
+			// "font12" needs to be referenced in skin file
 			skin.load(Gdx.files.internal("ui/uiSkin.json"));
-		
+
 			stage = new Stage();
 			Gdx.input.setInputProcessor(stage);
 			worldText = new Table(skin);
@@ -99,9 +99,16 @@ public class BootsGame extends ApplicationAdapter {
 
 	private long frames = 0;
 	private long lastFrameCount = 0;
+	private long lastWorldTick = 0;
+	public static final long WORLDTICK = 100;
+
+	private long nextWorldTick() {
+		return lastWorldTick + WORLDTICK;
+	}
 
 	@Override
 	public void render() {
+		long currentMillis = TimeUtils.millis();
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -112,7 +119,10 @@ public class BootsGame extends ApplicationAdapter {
 		// batch.draw(img, 0, 0);
 		// batch.end();
 		processKeyPresses();
-		populace.worldTick();
+		if (currentMillis - this.lastWorldTick >= WORLDTICK) {
+			populace.worldTick();
+			this.lastWorldTick = currentMillis;
+		}
 		updateText();
 
 	}
@@ -153,7 +163,8 @@ public class BootsGame extends ApplicationAdapter {
 				} else if (i == 0) {
 					worldText.add(new Label(s[i], skin)).right().getActor().setFontScale(fontScale);
 				} else {
-					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F).getActor().setFontScale(fontScale);
+					worldText.add(new Label(s[i], skin)).padLeft(10.0F).padRight(10.0F).getActor()
+							.setFontScale(fontScale);
 				}
 
 			}

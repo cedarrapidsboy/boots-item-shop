@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.moosedrive.boots.items.armor.Boot;
 import com.moosedrive.boots.items.containers.ContainerUtils;
 import com.moosedrive.boots.items.potions.HealthPotion;
@@ -28,6 +27,7 @@ import com.moosedrive.boots.mobs.Monster;
 import com.moosedrive.boots.mobs.Spider;
 import com.moosedrive.boots.utils.NameUtils;
 import com.moosedrive.boots.world.shops.BootShop;
+import com.moosedrive.boots.world.types.Point;
 
 /**
  *
@@ -36,6 +36,7 @@ import com.moosedrive.boots.world.shops.BootShop;
 public class Populace {
 
 	private Denizens denizens;
+
 	public Denizens getDenizens() {
 		return denizens;
 	}
@@ -47,8 +48,6 @@ public class Populace {
 	private static final int SPAWN_MILLIS = 1000;
 	private static final int FIGHT_MILLIS = 500;
 	private long lastTick = 0;
-	private long lastSpawn = 0;
-	private long lastFight = 0;
 
 	public int getMonsterCount() {
 		return denizens.getMonsters().size();
@@ -109,8 +108,8 @@ public class Populace {
 	}
 
 	private void addCustomer(Set<Customer> custs, WorldTile loc) {
-		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN), NameUtils.getRandomLastName(MobConstants.MOB_TYPE_HUMAN), "",
-				100, MathUtils.random(3,7), loc);
+		Customer cust = CreatureFactory.getHuman("", NameUtils.getRandomFirstName(MobConstants.MOB_TYPE_HUMAN),
+				NameUtils.getRandomLastName(MobConstants.MOB_TYPE_HUMAN), "", 100, MathUtils.random(3, 7), loc);
 		cust.addItem(new HealthPotion(Potion.POTION_SMALL));
 		cust.setMoney(MathUtils.random(10, 100));
 		custs.add(cust);
@@ -169,7 +168,7 @@ public class Populace {
 	}
 
 	public void worldTick() {
-		long currentMillis = TimeUtils.millis();
+
 		while (customersWaitingToSpawn > 0) {
 			addCustomer(denizens.getCustomers(), world.getRandomTile());
 			customersWaitingToSpawn--;
@@ -179,133 +178,163 @@ public class Populace {
 			spiderWaitingToSpawn--;
 		}
 		// Spawns and de-spawns
-		lastSpawn = processSpawns(lastSpawn);
-
+		processSpawns();
 		// Process fights
 		// Pick fights
-		lastFight = processFights(lastFight);
+		processFights();
 
-		this.setLastTick(currentMillis);
+		processMoves(getDenizens().getCustomers());
+		processMoves(getDenizens().getMonsters());
+
 	}
 
-	private long processFights(long deltaMillis) {
-		if ((TimeUtils.millis() - deltaMillis) > FIGHT_MILLIS) {
-			// process fights
-			denizens.getCustomers().stream().forEach(customer -> {
-				List<Creature> fighters = isFighting(customer);
-				if (fighters.size() > 0) {
-					Creature weakest = fighters.parallelStream().filter(f -> f instanceof Monster)
-							.filter(m -> !((Monster) m).isFriendly()).min(Comparator.comparing(m -> m.getCurHealth()))
-							.orElse(customer);
-					if (weakest != customer) {
-						System.out.println(customer.name().getName() + " is fighting " + weakest.name().getName());
-						if (customer.getCurHealth() > 0 && weakest.getCurHealth() > 0) {
-							// customer takes a swing
-							if (customer.heal() == 0) {
-								weakest.applyDamage(customer.getDamage());
-							} else {
-								System.out.println("+++" + customer.name().getName() + " healed during battle.");
-							}
-							// monster takes a swing
-							if (weakest.getCurHealth() >= 0) {
-								customer.applyDamage(weakest.getDamage());
-							}
+	private void processFights() {
+		// process fights
+		denizens.getCustomers().stream().forEach(customer -> {
+			List<Creature> fighters = isFighting(customer);
+			if (fighters.size() > 0) {
+				Creature weakest = fighters.parallelStream().filter(f -> f instanceof Monster)
+						.filter(m -> !((Monster) m).isFriendly()).min(Comparator.comparing(m -> m.getCurHealth()))
+						.orElse(customer);
+				if (weakest != customer) {
+					System.out.println(customer.name().getName() + " is fighting " + weakest.name().getName());
+					if (customer.getCurHealth() > 0 && weakest.getCurHealth() > 0) {
+						// customer takes a swing
+						if (customer.heal() == 0) {
+							weakest.applyDamage(customer.getDamage());
+						} else {
+							System.out.println("+++" + customer.name().getName() + " healed during battle.");
 						}
-						if (customer.getCurHealth() <= 0) {
-							// give items to monster because customer died
-							customer.getContents().forEach(i -> weakest.addItem(i));
-							weakest.setMoney(customer.getMoney() + weakest.getMoney());
+						// monster takes a swing
+						if (weakest.getCurHealth() >= 0) {
+							customer.applyDamage(weakest.getDamage());
 						}
-						if (weakest.getCurHealth() <= 0) {
-							// give items to customer because monster died
-							weakest.getContents().forEach(i -> customer.addItem(i));
-							customer.setMoney(customer.getMoney() + weakest.getMoney());
-							// customer heals if possible and equips new stuff
-							if (customer.heal() > 0) {
-								System.out.println("+++" + customer.name().getName() + " drinks a potion.");
-							}
-							// Go buy/sell some boots (instantaneously)
-							processPurchases(customer);
-							customer.equipBestBoots();
-						}
-
 					}
-				}
-			});
-			// Remove dead combatants
-			combatList.parallelStream().forEach(l -> {
-				List<Creature> toRemove = l.stream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList());
-				toRemove.parallelStream().forEach(c -> {
-					l.remove(c);
-					System.out.println("---" + c.name().getName() + " died and has been removed from combat.");
-				});
-
-			});
-			// Remove combat groups of 1
-			combatList.removeAll(combatList.stream().filter(l -> l.size() <= 1).collect(Collectors.toList()));
-			// Remove monster-only combats
-			ArrayList<List<Creature>> monsterParties = new ArrayList<>();
-			Iterator<List<Creature>> it = combatList.iterator();
-			while (it.hasNext()) {
-				List<Creature> list = it.next();
-				boolean isMonsterParty = true;
-				Iterator<Creature> c = list.iterator();
-				while (c.hasNext()) {
-					if (c.next() instanceof Customer) {
-						isMonsterParty = false;
+					if (customer.getCurHealth() <= 0) {
+						// give items to monster because customer died
+						customer.getContents().forEach(i -> weakest.addItem(i));
+						weakest.setMoney(customer.getMoney() + weakest.getMoney());
+						weakest.setIdle();
 					}
+					if (weakest.getCurHealth() <= 0) {
+						// give items to customer because monster died
+						weakest.getContents().forEach(i -> customer.addItem(i));
+						customer.setMoney(customer.getMoney() + weakest.getMoney());
+						// customer heals if possible and equips new stuff
+						if (customer.heal() > 0) {
+							System.out.println("+++" + customer.name().getName() + " drinks a potion.");
+						}
+						// Go buy/sell some boots (instantaneously)
+						processPurchases(customer);
+						customer.equipBestBoots();
+						customer.setIdle();
+					}
+
 				}
-				if (isMonsterParty) {
-					monsterParties.add(list);
-				}
-				;
 			}
-			combatList.removeAll(monsterParties);
-
-			// pickfights
-			List<Creature> notFighting = denizens.getMonsters().parallelStream().filter(c -> isFighting(c).size() == 0)
-					.collect(Collectors.toList());
-			notFighting.stream().forEach(m -> {
-				// 1:50 chance of picking a fight a customer
-				if (MathUtils.random(1, 20) == 1) {
-					ArrayList<Customer> entities = new ArrayList<Customer>(denizens.getCustomers());
-					startFighting(entities.get(MathUtils.random(entities.size() - 1)), m);
-				}
+		});
+		// Remove dead combatants
+		combatList.parallelStream().forEach(l -> {
+			List<Creature> toRemove = l.stream().filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList());
+			toRemove.parallelStream().forEach(c -> {
+				l.remove(c);
+				System.out.println("---" + c.name().getName() + " died and has been removed from combat.");
 			});
-			return TimeUtils.millis();
+
+		});
+		// Remove combat groups of 1
+		combatList.removeAll(combatList.stream().filter(l -> l.size() <= 1).collect(Collectors.toList()));
+		// Remove monster-only combats
+		ArrayList<List<Creature>> monsterParties = new ArrayList<>();
+		Iterator<List<Creature>> it = combatList.iterator();
+		while (it.hasNext()) {
+			List<Creature> list = it.next();
+			boolean isMonsterParty = true;
+			Iterator<Creature> c = list.iterator();
+			while (c.hasNext()) {
+				if (c.next() instanceof Customer) {
+					isMonsterParty = false;
+				}
+			}
+			if (isMonsterParty) {
+				monsterParties.add(list);
+			}
+			;
 		}
-		return deltaMillis;
+		combatList.removeAll(monsterParties);
+
+		// pickfights based on location
+		List<Creature> monstersNotFighting = denizens.getMonsters().parallelStream()
+				.filter(c -> isFighting(c).size() == 0).collect(Collectors.toList());
+		monstersNotFighting.stream().forEach(m -> {
+			denizens.getCustomers().stream().filter(c -> c.getLocation() == m.getLocation()).forEach(c -> {
+				startFighting(c, m);
+			});
+		});
+
 	}
-	
-	public List<Creature> creaturesOnTile(WorldTile tile){
+
+	public void processMoves(Set<? extends Creature> creatures) {
+		ArrayList<Point> points = new ArrayList<>();
+		// make decisions on idle monsters
+		creatures.stream().filter(c -> c.isIdle()).forEach(c -> {
+			// 1:5 chance monster moves somewhere
+			if (MathUtils.random(1, 5) == 1) {
+				// get reachable tiles
+				List<WorldTile> possibleTiles = world.getReachableTiles(c.getLocation(), c.getRange());
+				// remove the tile the monster occupies
+				possibleTiles.remove(c.getLocation());
+				// set destination to a random reachable tile
+				c.setDestination(possibleTiles.get(MathUtils.random(0, possibleTiles.size() - 1)));
+			}
+		});
+
+		// move monsters that are idle or moving and have a destination
+		creatures.stream().filter(c -> c.isMoving()).forEach(c -> {
+			// move one step in a straight line toward the destination
+			int dist = World.distance(c.getLocation().getCube(), c.getDestination().getCube());
+			WorldTile tile = world.cubeRound(
+					World.cubeLerp(c.getLocation().getCube(), c.getDestination().getCube(), 1.0F / dist * 1));
+			c.setLocation(tile);
+		});
+
+	}
+
+	public List<Creature> creaturesOnTile(WorldTile tile) {
 		ArrayList<Creature> list = new ArrayList<Creature>();
 		list.addAll(customersOnTile(tile));
 		list.addAll(monstersOnTile(tile));
 		return list;
 	}
-	public List<Creature> customersOnTile(WorldTile tile){
+
+	public List<Creature> customersOnTile(WorldTile tile) {
 		return denizens.getCustomers().stream().filter(c -> (c.getLocation() == tile)).collect(Collectors.toList());
 	}
-	public List<Creature> monstersOnTile(WorldTile tile){
+
+	public List<Creature> monstersOnTile(WorldTile tile) {
 		return denizens.getMonsters().stream().filter(c -> (c.getLocation() == tile)).collect(Collectors.toList());
 	}
-	
-	public List<WorldTile> tilesWithCreatures(List<WorldTile> tiles){
+
+	public List<WorldTile> tilesWithCreatures(List<WorldTile> tiles) {
 		ArrayList<WorldTile> list = new ArrayList<WorldTile>();
 		list.addAll(tilesWithCustomers(tiles));
 		list.addAll(tilesWithMonsters(tiles));
 		return list;
 	}
-	public List<WorldTile> tilesWithoutCreatures(List<WorldTile> tiles){
+
+	public List<WorldTile> tilesWithoutCreatures(List<WorldTile> tiles) {
 		return tiles.stream().filter(t -> !tilesWithCreatures(tiles).contains(t)).collect(Collectors.toList());
 	}
-	public List<WorldTile> tilesWithCustomers(List<WorldTile> tiles){
-		return denizens.getCustomers().stream().filter(c -> (tiles.contains(c.getLocation()))).map(Creature::getLocation).collect(Collectors.toList());
-	}
-	public List<WorldTile> tilesWithMonsters(List<WorldTile> tiles){
-		return denizens.getMonsters().stream().filter(c -> (tiles.contains(c.getLocation()))).map(Creature::getLocation).collect(Collectors.toList());
+
+	public List<WorldTile> tilesWithCustomers(List<WorldTile> tiles) {
+		return denizens.getCustomers().stream().filter(c -> (tiles.contains(c.getLocation())))
+				.map(Creature::getLocation).collect(Collectors.toList());
 	}
 
+	public List<WorldTile> tilesWithMonsters(List<WorldTile> tiles) {
+		return denizens.getMonsters().stream().filter(c -> (tiles.contains(c.getLocation()))).map(Creature::getLocation)
+				.collect(Collectors.toList());
+	}
 
 	private void processPurchases(Customer customer) {
 		ArrayList<Boot> sortedBoots = new ArrayList<Boot>(customer.getContents().stream().filter(i -> i instanceof Boot)
@@ -345,32 +374,26 @@ public class Populace {
 	/**
 	 * Adds and removes creatures
 	 * 
-	 * @param deltaMillis
-	 *            time of last spawn update
-	 * @return time of last spawn update (same as deltaMillis if update not yet
-	 *         scheduled)
 	 */
-	private long processSpawns(long deltaMillis) {
-		if ((TimeUtils.millis() - deltaMillis) > SPAWN_MILLIS) {
-			if (denizens.getCustomers().size() < MIN_CUSTOMERS) {
-				addCustomerAndSpiders(denizens.getCustomers(), denizens.getMonsters());
-			}
-			denizens.getCustomers().removeAll(denizens.getCustomers().parallelStream()
-					.filter(c -> c.getCurHealth() <= 0).collect(Collectors.toList()));
-			denizens.getMonsters().removeAll(denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0)
-					.collect(Collectors.toList()));
-			if (MathUtils.random(1, 15) == 1) {
-				// 1:15 chance for a spider rush
-				denizens.getCustomers().forEach(c -> {
-					for (int i = 0; i < 5; i++) {
-						addSpider();
-					}
-				});
-			}
+	private void processSpawns() {
 
-			return TimeUtils.millis();
+		if (denizens.getCustomers().size() < MIN_CUSTOMERS) {
+			addCustomerAndSpiders(denizens.getCustomers(), denizens.getMonsters());
 		}
-		return deltaMillis;
+		denizens.getCustomers().removeAll(denizens.getCustomers().parallelStream().filter(c -> c.getCurHealth() <= 0)
+				.collect(Collectors.toList()));
+		denizens.getMonsters().removeAll(denizens.getMonsters().parallelStream().filter(c -> c.getCurHealth() <= 0)
+				.collect(Collectors.toList()));
+		// TODO removed spider rush for movement processing
+		// if (MathUtils.random(1, 15) == 1) {
+		// // 1:15 chance for a spider rush
+		// denizens.getCustomers().forEach(c -> {
+		// for (int i = 0; i < 5; i++) {
+		// addSpider();
+		// }
+		// });
+		// }
+
 	}
 
 	/**
@@ -412,6 +435,8 @@ public class Populace {
 			ArrayList<Creature> newFight = new ArrayList<>();
 			newFight.add(customer);
 			newFight.add(creature);
+			customer.setFighting();
+			creature.setFighting();
 			combatList.add(newFight);
 			return newFight;
 		} else {
@@ -422,9 +447,11 @@ public class Populace {
 				combatants = it.next();
 				if (customerFighting && combatants.contains(customer)) {
 					combatants.add(creature);
+					creature.setFighting();
 					return combatants;
 				} else if (creatureFighting && combatants.contains(creature)) {
 					combatants.add(customer);
+					customer.setFighting();
 					return combatants;
 				}
 			}

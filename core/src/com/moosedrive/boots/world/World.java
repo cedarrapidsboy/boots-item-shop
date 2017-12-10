@@ -131,7 +131,7 @@ public class World {
 	 * @param t
 	 * @return a Cube t-steps between a and b
 	 */
-	private static Cube cubeLerp(Cube a, Cube b, float t) {
+	public static Cube cubeLerp(Cube a, Cube b, float t) {
 		return new Cube(lerp(a.getX(), b.getX(), t), lerp(a.getY(), b.getY(), t), lerp(a.getZ(), b.getZ(), t));
 	}
 
@@ -143,7 +143,7 @@ public class World {
 	 *            A point in the world
 	 * @return A tile that contains the point, null if no tile contains the point
 	 */
-	private WorldTile cubeRound(Cube cube) {
+	public WorldTile cubeRound(Cube cube) {
 		int rx = Math.round(cube.getX());
 		int ry = Math.round(cube.getY());
 		int rz = Math.round(cube.getZ());
@@ -192,7 +192,7 @@ public class World {
 		return Math.round((Math.abs(hex.getQ()) + Math.abs(hex.getR()) + Math.abs(hex.getS())) / 2);
 	}
 
-	private static int distance(Cube a, Cube b) {
+	public static int distance(Cube a, Cube b) {
 		return length(subtract(a, b));
 	}
 
