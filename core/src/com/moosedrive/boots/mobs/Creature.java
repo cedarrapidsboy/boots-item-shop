@@ -30,7 +30,7 @@ public abstract class Creature implements IContainer {
 	protected long curHealth;
 	private int strength;
 	private WorldTile location;
-	
+
 	public WorldTile getLocation() {
 		return location;
 	}
@@ -40,8 +40,6 @@ public abstract class Creature implements IContainer {
 	}
 
 	public final static int CAPACITY_STRENGTH_MULTIPLIER = 10;
-	
-	
 
 	protected void setCurHealth(long curHealth) {
 		this.curHealth = curHealth;
@@ -52,7 +50,8 @@ public abstract class Creature implements IContainer {
 	protected List<IItem> inventory;
 	private int baseDamage;
 
-	public Creature(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int baseDamage, int strength, WorldTile loc) {
+	public Creature(MobName name, int numLegs, int numArms, int numHeads, int maxHealth, int baseDamage, int strength,
+			WorldTile loc) {
 		this.maxLegs = numLegs;
 		this.numLegs = this.maxLegs;
 		this.maxArms = numArms;
@@ -220,19 +219,20 @@ public abstract class Creature implements IContainer {
 	public void setStrength(int strength) {
 		this.strength = strength;
 	}
-	
+
 	public int getCapacity() {
 		return this.strength * CAPACITY_STRENGTH_MULTIPLIER;
 	}
-	
+
 	/**
-	 * Sum the encumbrance of items.
-	 * Should be extended for mob types that have added equipped inventory.
+	 * Sum the encumbrance of items. Should be extended for mob types that have
+	 * added equipped inventory.
+	 * 
 	 * @return total encumbrance of contained items
 	 */
 	public double getEncumbrance() {
 		return getContents().stream().mapToDouble(IItem::getEncumbrance).sum();
-		
+
 	}
 
 }

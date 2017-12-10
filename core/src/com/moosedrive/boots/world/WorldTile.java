@@ -11,12 +11,12 @@ public class WorldTile {
 		return this.cube;
 	}
 	
-	public WorldTile(int x, int y, int z) {
+	public WorldTile(World world, int x, int y, int z) {
 		super();
 		this.cube = new Cube(x, y, z);
 	}
 	
-	public WorldTile(int q, int r) {
+	public WorldTile(World world, int q, int r) {
 		super();
 		this.cube = new Cube(q, -q-r, r);
 	}

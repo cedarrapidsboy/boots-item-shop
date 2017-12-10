@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -23,11 +25,28 @@ class WorldTest {
 	@AfterAll
 	static void tearDownAfterClass() throws Exception {
 	}
-	
+
 	@Test
-	void testTileLocation(){
-		assertNotNull(world.getTile(new Cube(0,0,0)));
-		assertNull(world.getTile(new Cube(Float.MAX_VALUE,Float.MAX_VALUE,Float.MAX_VALUE)));
+	void testTileLocation() {
+		assertNotNull(world.getTile(new Cube(0, 0, 0)));
+		assertNull(world.getTile(new Cube(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE)));
+	}
+
+	@Test
+	void testReachable() {
+		WorldTile tile = world.getTile(new Cube(0, 0, 0));
+		assertNotNull(tile);
+		List<WorldTile> tiles = world.getReachableTiles(tile, 1);
+		assertEquals(7, tiles.size());
+		tiles = world.getReachableTiles(tile, 0);
+		assertEquals(1, tiles.size());
+		tiles = world.getReachableTiles(tile, 2);
+		assertEquals(19, tiles.size());
+		//a tile on the very edge should not have any reachable tiles on one side
+		tile = world.getTile(new Cube(-World.OVERWORLD_RADIUS,0));
+		assertNotNull(tile);
+		tiles = world.getReachableTiles(tile, 1);
+		assertEquals(4, tiles.size());
 	}
 
 	@Test

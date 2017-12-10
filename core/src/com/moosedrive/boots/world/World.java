@@ -3,6 +3,7 @@ package com.moosedrive.boots.world;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.moosedrive.boots.world.types.Cube;
@@ -29,7 +30,7 @@ public class World {
 			int r1 = Math.max(-OVERWORLD_RADIUS, -q - OVERWORLD_RADIUS);
 			int r2 = Math.min(OVERWORLD_RADIUS, -q + OVERWORLD_RADIUS);
 			for (int r = r1; r <= r2; r++) {
-				tile = new WorldTile(q, r);
+				tile = new WorldTile(this, q, r);
 				map.put(hash(tile.getCube()), tile);
 			}
 		}
@@ -38,9 +39,9 @@ public class World {
 	public List<WorldTile> getTiles() {
 		return new ArrayList<WorldTile>(map.values());
 	}
-	
+
 	public WorldTile getRandomTile() {
-		return getTiles().get(MathUtils.random(0,getTiles().size()-1));
+		return getTiles().get(MathUtils.random(0, getTiles().size() - 1));
 	}
 
 	/**
@@ -79,6 +80,26 @@ public class World {
 		return CUBE_DIRECTIONS[dir];
 	}
 
+	/**
+	 * Returns all tiles that exist around the given tile. Array is indexed from 0-5
+	 * - see DIRECTION_X constants.
+	 * 
+	 * @param tile
+	 * @return An array - null values indicate no tile in that direction
+	 */
+	public WorldTile[] getNeighborTiles(WorldTile tile) {
+		WorldTile[] tiles = new WorldTile[5];
+		for (int i = DIRECTION_E; i <= DIRECTION_SE; i++) {
+			tiles[i] = getNeighborTile(tile, i);
+		}
+		return tiles;
+	}
+
+	public List<WorldTile> getReachableTiles(WorldTile tile, int steps) {
+		return getTiles().stream().filter(t -> (distance(tile.getCube(), t.getCube()) <= steps))
+				.collect(Collectors.toList());
+	}
+
 	public WorldTile getNeighborTile(WorldTile cube, int dir) {
 		Cube neighbor = Cube.add(cube.getCube(), getCubeDirection(dir));
 		return getTile(neighbor);
@@ -87,8 +108,7 @@ public class World {
 	public static int getDistance(WorldTile tileA, WorldTile tileB) {
 		Cube a = tileA.getCube();
 		Cube b = tileB.getCube();
-		return Math.round(Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ()))
-				/ 2;
+		return distance(a, b);
 	}
 
 	/**
@@ -166,6 +186,26 @@ public class World {
 		}
 		return results.toArray(new WorldTile[results.size()]);
 
+	}
+
+	private static int length(Cube hex) {
+		return Math.round((Math.abs(hex.getQ()) + Math.abs(hex.getR()) + Math.abs(hex.getS())) / 2);
+	}
+
+	private static int distance(Cube a, Cube b) {
+		return length(subtract(a, b));
+	}
+
+	private static Cube add(Cube a, Cube b) {
+		return new Cube(a.getQ() + b.getQ(), a.getR() + b.getR(), a.getS() + b.getS());
+	}
+
+	private static Cube subtract(Cube a, Cube b) {
+		return new Cube(a.getQ() - b.getQ(), a.getR() - b.getR(), a.getS() - b.getS());
+	}
+
+	private static Cube multiply(Cube a, int k) {
+		return new Cube(a.getQ() * k, a.getR() * k, a.getS() * k);
 	}
 
 }
