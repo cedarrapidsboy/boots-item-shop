@@ -10,7 +10,7 @@ import com.moosedrive.boots.world.types.Cube;
 
 public class World {
 
-	public static final int OVERWORLD_RADIUS = 10;
+	public static final int OVERWORLD_RADIUS = 25;
 	private static final Cube[] CUBE_DIRECTIONS = { new Cube(+1, -1, 0), new Cube(+1, 0, -1), new Cube(0, +1, -1),
 			new Cube(-1, +1, 0), new Cube(-1, 0, +1), new Cube(0, -1, +1) };
 	public static final int DIRECTION_E = 0;

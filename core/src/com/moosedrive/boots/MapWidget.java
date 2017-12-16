@@ -30,7 +30,7 @@ public class MapWidget extends Actor {
 		float originX = getWidth()/2;
 		float originY = getHeight()/2;
 		
-		Layout layout = new Layout(Orientation.layout_pointy, new Point(TILE_SIZE,TILE_SIZE), new Point(originX, originY));
+		Layout layout = new Layout(Orientation.layout_pointy, new Point(getHeight()/(World.OVERWORLD_RADIUS*2)/2,getHeight()/(World.OVERWORLD_RADIUS*2)/2), new Point(originX, originY));
 		shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
 		shapeRenderer.translate(getX(), getY(), 0);
